@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+{% block title %}Register - Club{% endblock %}
+
+{% block content %}
+<form method="post" class="max-w-4xl mx-auto p-6 bg-white shadow-md rounded-lg space-y-8">
+  {% csrf_token %}
+
+  <h2 class="text-3xl font-bold mb-6 text-center text-blue-700">
+    📝 Club Registration Form
+  </h2>
+
+  <!-- Club Info -->
+  <div>
+    <h3 class="text-xl font-bold text-indigo-600 mb-2">
+      📘 Club Information <span class="text-red-500">*</span>
+    </h3>
+    <div class="grid md:grid-cols-2 gap-4">
+      <input name="club_username" placeholder="Username *" class="input" required>
+      <input name="password" type="password" placeholder="Password *" class="input" required>
+      <input name="club_name" placeholder="Club Name *" class="input" required>
+      <input name="club_category" placeholder="Category *" class="input" required>
+      <input name="date_established" type="date" class="input" required>
+    </div>
+  </div>
+  <hr class="border-t-2 border-blue-200">
+
+  <!-- President Info -->
+  <div>
+    <h3 class="text-xl font-bold text-green-600 mb-2">
+      👤 President Information <span class="text-red-500">*</span>
+    </h3>
+    <div class="grid md:grid-cols-2 gap-4">
+      <input name="president_name" placeholder="Name *" class="input" required>
+      <input name="president_student_id" placeholder="Student ID *" class="input" required>
+      <input name="president_email" type="email" placeholder="Email *" class="input" required>
+      <input name="president_phone" placeholder="Phone *" class="input" required>
+      <input name="president_department_year" placeholder="Department & Year *" class="input" required>
+    </div>
+  </div>
+  <hr class="border-t-2 border-green-200">
+
+  <!-- Secretary Info -->
+  <div>
+    <h3 class="text-xl font-bold text-purple-600 mb-2">
+      👩‍💼 Secretary Information <span class="text-red-500">*</span>
+    </h3>
+    <div class="grid md:grid-cols-2 gap-4">
+      <input name="secretary_name" placeholder="Name *" class="input" required>
+      <input name="secretary_student_id" placeholder="Student ID *" class="input" required>
+      <input name="secretary_email" type="email" placeholder="Email *" class="input" required>
+      <input name="secretary_phone" placeholder="Phone *" class="input" required>
+      <input name="secretary_department_year" placeholder="Department & Year *" class="input" required>
+    </div>
+  </div>
+  <hr class="border-t-2 border-purple-200">
+
+  <!-- Treasurer & Other Members -->
+  <div>
+    <h3 class="text-xl font-bold text-yellow-600 mb-2">
+      💰 Treasurer & Other Executives <span class="text-gray-400 text-sm">(optional)</span>
+    </h3>
+    <div class="grid md:grid-cols-2 gap-4">
+      <input name="treasurer" placeholder="Treasurer Name" class="input">
+      <textarea name="other_members" placeholder="Other Executive Members" class="input h-24"></textarea>
+    </div>
+  </div>
+  <hr class="border-t-2 border-yellow-200">
+
+  <!-- Constitution -->
+  <div>
+    <h3 class="text-xl font-bold text-red-600 mb-2">
+      📜 Constitution & Mission 
+    </h3>
+    <textarea name="club_constitution" placeholder="Club Constitution " class="input h-32 w-full" ></textarea>
+    <textarea name="mission_and_vision" placeholder="Mission and Vision " class="input h-24 w-full mt-4"></textarea>
+    <textarea name="membership_rules" placeholder="Membership Rules (optional)" class="input h-20 w-full mt-4"></textarea>
+  </div>
+  <hr class="border-t-2 border-red-200">
+
+  <!-- Advisor -->
+  <div>
+    <h3 class="text-xl font-bold text-pink-600 mb-2">
+      👨‍🏫 Advisor Information <span class="text-gray-400 text-sm">(optional)</span>
+    </h3>
+    <div class="grid md:grid-cols-2 gap-4">
+      <input name="advisor_name" placeholder="Advisor Name" class="input">
+      <input name="advisor_contact" placeholder="Advisor Contact" class="input">
+    </div>
+  </div>
+  <hr class="border-t-2 border-pink-200">
+
+  <!-- Social Links -->
+  <div>
+    <h3 class="text-xl font-bold text-blue-500 mb-2">
+      🌐 Social Media / Website <span class="text-gray-400 text-sm"><span class="text-red-500">*</span>(Give at least one)</span>
+    </h3>
+    <div class="grid md:grid-cols-2 gap-4">
+      <input name="facebook_link" placeholder="Facebook URL *" class="input" required>
+      <input name="instagram_link" placeholder="Instagram URL" class="input">
+      <input name="linkedin_link" placeholder="LinkedIn URL" class="input">
+      <input name="youtube_link" placeholder="YouTube URL" class="input">
+      <input name="website_link" placeholder="Website URL" class="input">
+    </div>
+  </div>
+  <hr class="border-t-2 border-blue-300">
+
+  <!-- Submit Button -->
+  <div class="text-center pt-4">
+    <button type="submit"
+      class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-8 rounded-lg transition shadow-md">
+      ✅ Register Club
+    </button>
+  </div>
+</form>
+{% endblock %}

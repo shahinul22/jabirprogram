@@ -127,7 +127,7 @@
                 </div>
               {% else %}
                 <div class="p-4 border-t border-base-300 flex items-center space-x-2">
-                  <form action="{% url 'logout' %}" method="POST">
+                  <form action="#" method="POST">
                     {% csrf_token %}
                     <button type="submit" class="btn btn-sm btn-error w-full hover-glow"><i class="fa-solid fa-right-from-bracket mr-2"></i> Logout</button>
                   </form>
@@ -180,7 +180,7 @@
                 <a class="hover-glow"><i class="fa-solid fa-gear mr-2"></i>Settings</a>
               </li>
               <li>
-                <form action="{% url 'logout' %}" method="POST">
+                <form action="#" method="POST">
                   {% csrf_token %}
                   <button type="submit" class="w-full text-left flex items-center hover-glow"><i class="fa-solid fa-right-from-bracket mr-2"></i>Logout</button>
                 </form>
