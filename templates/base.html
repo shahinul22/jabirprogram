@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}My Site{% endblock %}</title>
+    {% comment %} <link rel="icon" type="image/x-icon" href="{% static 'static/favicon.ico' %}"> {% endcomment %}
+    {% comment %} <link rel="stylesheet" href="{% static 'static/styles.css' %}"> {% endcomment %}
+</head>
+<body>
+    <header>
+        <h1>Welcome to My Site</h1>
+    </header>
+    <main>
+        {% block content %}
+        <p>This is the main content area.</p>
+        {% endblock %}
+    </main>
+    <footer>
+        <p>&copy; 2023 My Site</p>
+    </footer>
+</body>
+</html>
