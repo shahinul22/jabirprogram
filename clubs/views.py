@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.hashers import make_password, check_password
-from django.contrib.auth import login
+from django.contrib.auth import login, logout                   
 from django.contrib.auth.models import User
 from django.contrib import messages
 from .models import ClubRegistration
@@ -88,3 +88,7 @@ def club_login(request):
             return redirect('club_login')
 
     return render(request, 'clubs/login.html')
+
+def club_logout(request):
+    logout(request)
+    return redirect('home')  # or wherever you want user to land

@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}
+  Profile - Super Admin
+{% endblock %}
+{% block content %}
+  <h1>User Profile</h1>
+  <p>Welcome to your profile page!</p>
+  <p>Here you can view and edit your profile information.</p>
+  {% if user.is_superuser %}
+    <h2>Your Clubs</h2>
+    <h3>Approved Clubs</h3>
+    <ul>
+      {% for club in approved_clubs %}
+        <li>{{ club.club_name }}</li>
+      {% empty %}
+        <li>No approved clubs</li>
+      {% endfor %}
+    </ul>
+    <h3>Pending Clubs</h3>
+    <ul>
+      {% for club in pending_clubs %}
+        <li>{{ club.club_name }}</li>
+      {% empty %}
+        <li>No pending clubs</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endblock %}
