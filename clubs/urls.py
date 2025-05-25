@@ -1,6 +1,8 @@
 from django.urls import path
-from .views import club_register, club_login, club_logout, club_detail, delete_club
-
+from .views import (
+    club_register, club_login, club_logout, club_detail,
+    delete_club
+)
 urlpatterns = [
     path('register-club/', club_register, name='club-register'),
     path('register/', club_register, name='club_register'),

@@ -29,6 +29,8 @@ INSTALLED_APPS = [
     # installed apps
     'user',
     'clubs',
+    'admin_panel',
+    
 ]
 
 MIDDLEWARE = [
