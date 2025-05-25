@@ -171,7 +171,7 @@
             <!-- Dropdown Content -->
             <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-48">
               <li>
-                <a class="justify-between" href="{% url  'profile' %}" >
+                <a class="justify-between" href="{% url 'profile' %}">
                   <i class="fa-solid fa-user mr-2"></i>Profile
                   <span class="badge badge-info">New</span>
                 </a>
@@ -217,19 +217,54 @@
               </button>
               <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
                 <li>
-                  {% comment %} "{% url 'club_register' %}" {% endcomment %}
+                  {% comment %}"{% url 'club_register' %}"{% endcomment %}
 
                   <a class="hover-glow" href="{% url 'club_register' %}">Club Register</a>
                 </li>
                 <li>
                   <a class="hover-glow" href="#">User Register</a>
-                </li>                
+                </li>
               </ul>
             </div>
           </div>
         {% endif %}
       </div>
     </div>
+
+    {% if messages %}
+      <div class="fixed top-5 right-5 z-50 space-y-2 w-96">
+        {% for message in messages %}
+          <div class="px-4 py-3 rounded-lg shadow-md text-white
+        {% if message.tags == 'success' %}
+              
+               bg-green-500
+
+
+            {% elif message.tags == 'error' %}
+              
+               bg-red-500
+
+
+            {% elif message.tags == 'warning' %}
+              
+               bg-yellow-500 text-black
+
+
+            {% elif message.tags == 'info' %}
+              
+               bg-blue-500
+
+
+            {% else %}
+              
+               bg-gray-800
+
+            {% endif %}">
+            <p class="font-medium">{{ message }}</p>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
 
     <!-- Main Content -->
     <main class="flex-grow p-6">
@@ -240,5 +275,15 @@
 
     <!-- Footer -->
     <footer class="bg-base-100 text-center p-4 text-sm text-gray-500">&copy; 2025 Jahangirnagar University Club Management System</footer>
+    <!-- message dismiss time -->
+    <script>
+      setTimeout(() => {
+        const alerts = document.querySelectorAll('.z-50 > div')
+        alerts.forEach((alert) => {
+          alert.classList.add('opacity-0', 'transition', 'duration-500')
+          setTimeout(() => alert.remove(), 500)
+        })
+      }, 4000) // Auto-dismiss after 4 seconds
+    </script>
   </body>
 </html>

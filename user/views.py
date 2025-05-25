@@ -9,6 +9,7 @@ from django.contrib import messages
 
 def home(request):
     return render(request, 'base.html')
+
 def admin_login(request):
     if request.method == 'POST':
         form = AuthenticationForm(request, data=request.POST)
