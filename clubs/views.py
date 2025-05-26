@@ -2,17 +2,16 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.hashers import make_password, check_password
 from django.contrib.auth import login, logout
 from django.contrib.auth.models import User
-
-from .models import ClubRegistration
-from user.views import home
 from django.contrib import messages
 from django.core.mail import send_mail
 from django.conf import settings
-from django.views.decorators.csrf import csrf_exempt  # Optional: if CSRF issues
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required, user_passes_test
 
-from django.core.mail import send_mail
+from .models import ClubRegistration
 
 
+# ========== Public Views ==========
 
 def club_register(request):
     if request.method == "POST":
@@ -75,113 +74,20 @@ def club_login(request):
             messages.warning(request, "Your club is not yet approved.")
             return redirect("club_login")
 
-        # Check hashed password from club_password field
         if check_password(password, club.club_password):
-            # Create Django user on first login after approval
             user, created = User.objects.get_or_create(username=club.club_username)
             if created:
                 user.set_password(password)
                 user.save()
             login(request, user)
-            return redirect("home")  # redirect to your dashboard or homepage
+            return redirect("home")
         else:
             messages.error(request, "Invalid password.")
             return redirect("club_login")
 
     return render(request, "clubs/login.html")
 
-@csrf_exempt
-def club_detail(request, pk):
-    club = get_object_or_404(ClubRegistration, pk=pk)
-
-    if request.method == "POST" and request.user.is_superuser:
-        action = request.POST.get("action")
-
-        if action == "approve":
-            club.is_approved = True
-            club.save()
-
-            # Email notification after approval
-            subject = f"Your Club '{club.club_name}' Has Been Approved"
-            message = f"""
-Dear {club.president_name} and {club.secretary_name},
-
-We are pleased to inform you that your club registration for "{club.club_name}" has been approved by the admin.
-
-You can now log in using your username and password to manage your club activities.
-
-Best regards,  
-JU Club Management Team
-"""
-            recipient_list = []
-            if club.president_email:
-                recipient_list.append(club.president_email)
-            if club.secretary_email:
-                recipient_list.append(club.secretary_email)
-
-            if recipient_list:
-                send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, recipient_list, fail_silently=True)
-
-            messages.success(request, f"{club.club_name} has been approved and email sent.")
-            return redirect("club_detail", pk=pk)
-
-        elif action == "delete":
-            reason = request.POST.get("reason")
-            email = club.president_email or club.secretary_email
-
-            if email and reason:
-                send_mail(
-                    subject=f"Your club '{club.club_name}' registration was deleted",
-                    message=f"Dear Club,\n\nYour club registration has been deleted by the admin.\n\nReason: {reason}\n\nRegards,\nAdmin Team",
-                    from_email=settings.DEFAULT_FROM_EMAIL,
-                    recipient_list=[email],
-                    fail_silently=True,
-                )
-
-            club.delete()
-            messages.warning(request, f"{club.club_name} has been deleted.")
-            return redirect("admin_profile")
-
-    return render(request, "clubs/detail.html", {"club": club})
-
-
-from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib import messages
-from django.core.mail import send_mail
-from .models import ClubRegistration
-from django.contrib.auth.decorators import login_required, user_passes_test
-
-@login_required
-@user_passes_test(lambda u: u.is_superuser)
-def delete_club(request, club_id):
-    club = get_object_or_404(ClubRegistration, id=club_id)
-
-    if request.method == "POST":
-        reason = request.POST.get("reason", "No reason provided.")
-        subject = f"Your Club '{club.club_name}' Registration Was Rejected"
-        message = f"""
-Dear {club.president_name} and {club.secretary_name},
-
-We regret to inform you that your club registration for "{club.club_name}" has been declined.
-
-Reason: {reason}
-
-If you have any questions, feel free to contact the admin office.
-
-Best regards,
-JU Club Management Admin
-"""
-        recipient_list = [club.president_email, club.secretary_email]
-        send_mail(subject, message, None, recipient_list)
-
-        club.delete()
-        messages.success(
-            request, f"Club '{club.club_name}' deleted and notification sent."
-        )
-        return redirect("home")
-
-    return render(request, "clubs/confirm_delete.html", {"club": club})
 
 def club_logout(request):
     logout(request)
-    return redirect("home")  # or wherever you want user to land
+    return redirect("home")

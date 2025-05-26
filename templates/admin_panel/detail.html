@@ -6,6 +6,7 @@
 {% block content %}
   <div class="container mx-auto p-6 bg-white shadow-md rounded-lg">
     <h1 class="text-3xl font-bold text-blue-800 mb-4">{{ club.club_name }}</h1>
+
     <p>
       <strong>Category:</strong> {{ club.club_category }}
     </p>
@@ -82,27 +83,17 @@
       {% endif %}
     </ul>
   </div>
- {% if user.is_superuser %}
+
+  {% if user.is_superuser %}
     <div class="mt-6 space-y-4">
       {% if not club.is_approved %}
         <form method="post">
           {% csrf_token %}
-          <input type="hidden" name="action" value="approve">
-          <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
-            Approve Club
-          </button>
+          <input type="hidden" name="action" value="approve" />
+          <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Approve Club</button>
         </form>
       {% endif %}
-
-      <form method="post">
-        {% csrf_token %}
-        <input type="hidden" name="action" value="delete">
-        <label for="reason" class="block font-semibold text-gray-700 mt-4">Reason for Deletion:</label>
-        <textarea name="reason" rows="3" required class="w-full p-2 border rounded mt-1"></textarea>
-        <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 mt-2">
-          Delete Club
-        </button>
-      </form>
+      <a href="{% url 'confirm_delete' club.id %}" class="btn btn-ghost normal-case text-2xl font-bold">Delete</a>
     </div>
   {% endif %}
 {% endblock %}
