@@ -2,13 +2,14 @@
 from clubs.models import ClubRegistration
 from user.views import home
 from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth import login as auth_login
+from django.contrib.auth import login as auth_login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.core.mail import send_mail
 from django.conf import settings
+
 
 def admin_login_view(request):
     if request.method == 'POST':
@@ -17,7 +18,7 @@ def admin_login_view(request):
             user = form.get_user()
             if user.is_superuser:
                 auth_login(request, user)
-                return redirect('profile')
+                return redirect('admin_panel:admin_profile_view')  # ✅ Correct usage
             else:
                 messages.error(request, "You do not have permission to access this page.")
         else:
@@ -27,7 +28,7 @@ def admin_login_view(request):
 
     return render(request, 'admin_panel/login.html', {'form': form})
 
-    
+
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
 def admin_profile_view(request):
@@ -68,7 +69,7 @@ JU Club Management Team
                 send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, recipient_list, fail_silently=True)
 
             messages.success(request, f"{club.club_name} has been approved and email sent.")
-            return redirect("club_detail", pk=pk)
+            return redirect("admin_panel:admin_profile_view")  # ✅ Corrected
 
         elif action == "initiate_delete":
             show_delete_form = True
@@ -88,7 +89,7 @@ JU Club Management Team
 
             club.delete()
             messages.warning(request, f"{club.club_name} has been deleted.")
-            return redirect("admin_profile")
+            return redirect("admin_panel:admin_profile_view")  # ✅ Corrected
 
     return render(request, "admin_panel/detail.html", {"club": club, "show_delete_form": show_delete_form})
 
@@ -117,10 +118,8 @@ JU Club Management Admin
         send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, recipient_list)
 
         club.delete()
-        messages.success(
-            request, f"Club '{club.club_name}' deleted and notification sent."
-        )
-        return redirect("home")
+        messages.success(request, f"Club '{club.club_name}' deleted and notification sent.")
+        return redirect("admin_panel:admin_profile_view")  # ✅ Corrected
 
     return render(request, "admin_panel/confirm_delete.html", {"club": club})
 
@@ -149,6 +148,11 @@ JU Club Management Admin
 
         club.delete()
         messages.warning(request, f"{club.club_name} has been deleted and notification sent.")
-        return redirect("home")
+        return redirect("admin_panel:admin_profile_view")  # ✅ Corrected
 
     return render(request, "admin_panel/confirm_delete.html", {"club": club})
+
+
+def admin_logout_view(request):
+    logout(request)
+    return redirect('home')

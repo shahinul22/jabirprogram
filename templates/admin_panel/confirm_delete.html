@@ -13,7 +13,7 @@
     <textarea name="reason" rows="4" required class="w-full mt-1 p-2 border border-gray-300 rounded"></textarea>
     <div class="mt-4">
       <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Confirm Delete</button>
-      <a href="{% url 'club_detail' club.pk %}" class="ml-4 text-blue-600 hover:underline">Cancel</a>
+      <a href="{% url 'admin_panel:club_detail' club.pk %}" class="ml-4 text-blue-600 hover:underline">Cancel</a>
     </div>
   </form>
 </div>

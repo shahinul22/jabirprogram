@@ -11,6 +11,19 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from .models import ClubRegistration
 
 
+# ========== Private Views ==========
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect
+from clubs.models import ClubRegistration
+
+@login_required
+def club_profile_view(request):
+    club = ClubRegistration.objects.filter(club_username=request.user.username).first()
+    if not club:
+        # Optionally redirect or show an error
+        return redirect('clubs:club_register')  # or return 404
+    return render(request, 'clubs/profile.html', {'club': club})
+
 # ========== Public Views ==========
 
 def club_register(request):
@@ -54,7 +67,7 @@ def club_register(request):
         )
         club.save()
         messages.success(request, "Registration successful! Please wait for approval.")
-        return redirect("club_login")
+        return redirect("clubs:club_login")
 
     return render(request, "clubs/register.html")
 
@@ -68,11 +81,11 @@ def club_login(request):
             club = ClubRegistration.objects.get(club_username=username)
         except ClubRegistration.DoesNotExist:
             messages.error(request, "Club not found.")
-            return redirect("club_login")
+            return redirect("clubs:club_login")
 
         if not club.is_approved:
             messages.warning(request, "Your club is not yet approved.")
-            return redirect("club_login")
+            return redirect("clubs:club_login")
 
         if check_password(password, club.club_password):
             user, created = User.objects.get_or_create(username=club.club_username)
@@ -88,6 +101,13 @@ def club_login(request):
     return render(request, "clubs/login.html")
 
 
-def club_logout(request):
-    logout(request)
-    return redirect("home")
+from django.contrib.auth import logout
+from django.shortcuts import redirect
+
+
+
+def club_logout_view(request):
+    if request.method == "POST":
+        logout(request)
+        return redirect('club_login')  # or another page
+    return redirect('home')

@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     'user',
     'clubs',
     'admin_panel',
+    'core',
     
 ]
 

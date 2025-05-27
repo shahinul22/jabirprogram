@@ -93,7 +93,7 @@
           <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Approve Club</button>
         </form>
       {% endif %}
-      <a href="{% url 'confirm_delete' club.id %}" class="btn btn-ghost normal-case text-2xl font-bold">Delete</a>
+      <a href="{% url 'admin_panel:confirm_delete' club.id %}" class="btn btn-ghost normal-case text-2xl font-bold">Delete</a>
     </div>
   {% endif %}
 {% endblock %}
