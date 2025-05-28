@@ -1,5 +1,7 @@
 from django.urls import path
-from .views import home, user_profile_view
+
+
+
 app_name = "user"  # ✅ Add this line
 
 urlpatterns = [

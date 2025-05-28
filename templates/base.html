@@ -1,249 +1,213 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}JU Clubs{% endblock %}</title>
 
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{% block title %}JU Clubs{% endblock %}</title>
+  <!-- Tailwind CSS + DaisyUI -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.20/dist/full.min.css" rel="stylesheet" />
 
-    <!-- Tailwind CSS + DaisyUI -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.20/dist/full.min.css" rel="stylesheet" />
+  <!-- FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
 
-    <!-- FontAwesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <!-- Custom CSS -->
+  <link href="{% static 'css/output.css' %}" rel="stylesheet" />
 
-    <!-- Custom CSS -->
-    <link href="{% static 'css/output.css' %}" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {},
+      },
+      plugins: [daisyui],
+    };
+  </script>
+</head>
 
-    <script>
-      tailwind.config = {
-        theme: { extend: {} },
-        plugins: [daisyui]
-      }
-    </script>
+<body class="min-h-screen  flex flex-col bg-slate-50 text-gray-800 lg:mx-10 lg:mt-3">
+  <div class="drawer">
+    <input id="my-drawer" type="checkbox" class="drawer-toggle" />
 
-    <style>
-      .glass {
-        background: rgba(255, 255, 255, 0.2);
-        backdrop-filter: blur(8px);
-        border: 1px solid rgba(255, 255, 255, 0.3);
-      }
+    <div class="drawer-content flex flex-col">
+      <!-- Navbar -->
+      <div class="navbar bg-white shadow-sm px-4">
+        <div class="navbar-start">
+          <label for="my-drawer" class="btn btn-ghost lg:hidden">
+            <i class="fa-solid fa-bars text-xl"></i>
+          </label>
+          <a href="{% url 'home' %}" class="btn btn-ghost text-2xl font-bold">JuClubs</a>
+        </div>
 
-      .fade-in {
-        animation: fadeIn 0.4s ease-out forwards;
-      }
+        <div class="navbar-center hidden lg:flex">
+          <ul class="menu menu-horizontal px-1 gap-2">
+            <li><a class="transition hover:shadow-lg hover:-translate-y-0.5" href="#"><i class="fa-solid fa-house mr-2"></i>Home</a></li>
+            <li><a class="transition hover:shadow-lg hover:-translate-y-0.5" href="#"><i class="fa-solid fa-users mr-2"></i>Members</a></li>
+            <li><a class="transition hover:shadow-lg hover:-translate-y-0.5" href="#"><i class="fa-solid fa-calendar-days mr-2"></i>Events</a></li>
+          </ul>
+        </div>
 
-      .hover-glow {
-        transition: all 0.3s ease;
-      }
+        <div class="navbar-end space-x-4">
+          {% if user.is_authenticated %}
+          <div class="navbar-end flex items-center space-x-3">
+  <!-- Search Button -->
+  <button class="btn btn-ghost btn-circle">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+    </svg>
+  </button>
 
-      .hover-glow:hover {
-        box-shadow: 0 0 10px rgba(59, 130, 246, 0.6), 0 0 20px rgba(59, 130, 246, 0.4);
-        transform: translateY(-2px);
-      }
+  <!-- Notification Button -->
+  <button class="btn btn-ghost btn-circle">
+    <div class="indicator">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+      </svg>
+      <span class="badge badge-xs badge-primary indicator-item"></span>
+    </div>
+  </button>
 
-      body {
-        background-color: #f8fafc;
-        color: #333;
-      }
+  <!-- Avatar Dropdown -->
+  <div class="dropdown dropdown-end">
+    <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
+      <div class="w-10 rounded-full">
+        <img alt="User avatar"
+          src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp" />
+      </div>
+    </div>
+    <ul tabindex="0" class="menu menu-sm my-2 dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
+      
+      {% if club %}
+        <li><h2>Welcome, {{ club.club_name }}</h2></li>
+        <button class="btn btn-sm btn-error">
+                <a href="{% url 'clubs:club_profile_view' %}">Profile</a>
+        </button>
+        <button class="btn btn-sm btn-error">
+            <a href="{% url 'clubs:club_logout' %}">Club Logout</a>
+        </button>
+      {%else%}
+        <p>Admin </p>
+        <button class="btn btn-sm btn-error">
+                <a href="{% url 'admin_panel:admin_profile_view' %}">Profile</a>
+            </button>
+            <button class="btn btn-sm btn-error">
+                <a href="{% url 'admin_panel:admin_logout_view' %}">Admin Logout</a>
+            </button>
+      {% endif %}
+    </ul>
+  </div>
+</div>
 
-      .navbar,
-      .footer {
-        background-color: #ffffff;
-      }
-
-      .navbar a,
-      .navbar li a {
-        color: #333;
-      }
-
-      .dropdown-content a {
-        color: #333;
-      }
-
-      .dropdown-content a:hover {
-        color: #fff;
-        background-color: #2563eb;
-      }
-    </style>
-  </head>
-
-  <body class="min-h-screen flex flex-col">
-    <div class="drawer">
-      <input id="my-drawer" type="checkbox" class="drawer-toggle" />
-
-      <div class="drawer-content flex flex-col">
-        <div class="navbar bg-base-100 shadow-sm px-4">
-          <div class="navbar-start">
-            <label for="my-drawer" class="btn btn-ghost lg:hidden">
-              <i class="fa-solid fa-bars text-xl"></i>
-            </label>
-            <a href="{% url 'home' %}" class="btn btn-ghost normal-case text-2xl font-bold">JuClubs</a>
-          </div>
-
-          <div class="navbar-center hidden lg:flex">
-            <ul class="menu menu-horizontal px-1 space-x-2">
-              <li><a class="hover-glow" href="#"><i class="fa-solid fa-house mr-2"></i>Home</a></li>
-              <li><a class="hover-glow" href="#"><i class="fa-solid fa-users mr-2"></i>Members</a></li>
-              <li><a class="hover-glow" href="#"><i class="fa-solid fa-calendar-days mr-2"></i>Events</a></li>
-            </ul>
-          </div>
-
-          <div class="navbar-end flex items-center space-x-4">
-            {% if user.is_authenticated %}
+          {% else %}
+          <div class="flex items-center space-x-2">
+            <!-- Login Dropdown -->
             <div class="dropdown dropdown-end">
-              <label tabindex="0" class="btn btn-ghost btn-circle avatar">
-                <div class="w-12 h-12 rounded-full relative">
-                  <i class="fa-solid fa-circle-user text-4xl text-gray-600"></i>
-                  <div class="absolute bottom-0 right-0 bg-white rounded-full p-1">
-                    <i class="fa-solid fa-angle-down text-black text-xs"></i>
-                  </div>
-                </div>
-              </label>
-              <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-48">
-                <li>
-                  <!-- Static Profile Text Link (Optional) -->
-                  <a class="justify-between flex items-center hover-glow" href="{% url 'profile' %}">
-                    <i class="fa-solid fa-user mr-2"></i>
-                    Profile <span class="badge badge-info ml-1">New</span>
-                  </a>
-                  <a href="{% url 'profile' %}">Profile</a>
-
-
-                  <!-- Conditional Profile View Form -->
-                  {% if user.is_superuser %}
-                  <form action="{% url 'admin_panel:admin_profile_view' %}" method="get">
-                    {% elif user.is_club_admin %}
-                    <form action="{% url 'clubs:club_profile_view' %}" method="get">
-                      {% comment %}{% else %}
-                      <form action="{% url 'users:user_profile_view' %}" method="get">{% comment %}
-                        {% endif %}
-                        <button type="submit" class="w-full text-left flex items-center hover-glow mt-2">
-                          <i class="fa-solid fa-id-card mr-2"></i>View Profile
-                        </button>
-                      </form>
-                </li>
-
-                <li><a class="hover-glow"><i class="fa-solid fa-gear mr-2"></i>Settings</a></li>
-                <li>
-                  {% if user.is_superuser %}
-                  <form action="{% url 'admin_panel:admin_logout_view' %}" method="POST">
-                    {% elif user.is_club_admin %}
-                    <form action="{% url 'club_logout' %}" method="POST">
-                      {% comment %} {% else %}
-                      <form action="{% url 'user_logout' %}" method="POST"> {% endcomment %}
-                        {% endif %}
-                        {% csrf_token %}
-                        <button type="submit" class="w-full text-left flex items-center hover-glow">
-                          <i class="fa-solid fa-right-from-bracket mr-2"></i>Logout
-                        </button>
-                      </form>
-                </li>
+              <button class="btn btn-sm btn-primary flex items-center space-x-2 transition hover:shadow-lg hover:-translate-y-0.5">
+                <i class="fa-solid fa-arrow-right-to-bracket"></i><span>Login</span>
+              </button>
+              <ul class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
+                <li><a href="{% url 'admin_panel:admin_login_view' %}">Admin Login</a></li>
+                <li><a href="{% url 'clubs:club_login' %}">Club Login</a></li>
+                <li><a href="#">User Login</a></li>
               </ul>
             </div>
-            {% else %}
-            <div class="flex items-center space-x-2">
-              <div class="dropdown dropdown-end">
-                <button tabindex="0" class="btn btn-sm btn-primary flex items-center space-x-2 hover-glow">
-                  <i class="fa-solid fa-arrow-right-to-bracket"></i><span>Login</span>
-                </button>
-                <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
-                  <li><a class="hover-glow" href="{% url 'admin_panel:admin_login_view' %}">Admin Login</a></li>
-                  <li><a class="hover-glow" href="{% url 'clubs:club_login' %}">Club Login</a></li>
-                  <li><a class="hover-glow" href="#">User Login</a></li>
-                </ul>
-              </div>
-              <div class="dropdown dropdown-end">
-                <button tabindex="0" class="btn btn-sm btn-secondary flex items-center space-x-2 hover-glow">
-                  <i class="fa-solid fa-user-plus"></i><span>Register</span>
-                </button>
-                <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
-                  <li><a class="hover-glow" href="{% url 'clubs:club_register' %}">Club Register</a></li>
-                  <li><a class="hover-glow" href="#">User Register</a></li>
-                </ul>
-              </div>
+
+            <!-- Register Dropdown -->
+            <div class="dropdown dropdown-end">
+              <button class="btn btn-sm btn-secondary flex items-center space-x-2 transition hover:shadow-lg hover:-translate-y-0.5">
+                <i class="fa-solid fa-user-plus"></i><span>Register</span>
+              </button>
+              <ul class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
+                <li><a href="{% url 'clubs:club_register' %}">Club Register</a></li>
+                <li><a href="#">User Register</a></li>
+              </ul>
             </div>
-            {% endif %}
-          </div>
-        </div>
-
-        {% if messages %}
-        <div class="fixed top-5 right-48 z-100 space-y-2 w-96">
-          {% for message in messages %}
-          <div
-            class="alert-message px-4 py-3 rounded-lg shadow-md text-white {% if message.tags == 'success' %}bg-green-500{% elif message.tags == 'error' %}bg-red-500{% elif message.tags == 'warning' %}bg-yellow-500 text-black{% elif message.tags == 'info' %}bg-blue-500{% else %}bg-gray-800{% endif %}">
-            <p class="font-medium">{{ message }}</p>
-          </div>
-          {% endfor %}
-        </div>
-        {% endif %}
-
-        <main class="flex-grow p-6">
-          {% block content %}{% endblock %}
-        </main>
-
-        <footer class="bg-base-100 text-center p-4 text-sm text-gray-500">
-          &copy; 2025 Jahangirnagar University Club Management System
-        </footer>
-      </div>
-
-      <div class="drawer-side z-50">
-        <label for="my-drawer" class="drawer-overlay"></label>
-        <div class="flex flex-col justify-between h-full w-80 bg-base-200 relative">
-          <label for="my-drawer"
-            class="absolute bg-red-800 rounded-full text-white p-2 right-6 top-6 cursor-pointer hover:bg-white hover:text-red-600">
-            <i class="fa-solid fa-xmark text-3xl"></i>
-          </label>
-
-          <ul class="menu p-4 flex-grow text-base-content space-y-2 mt-20">
-            <li><a class="hover-glow" href="#"><i class="fa-solid fa-house mr-2"></i>Home</a></li>
-            <li><a class="hover-glow" href="#"><i class="fa-solid fa-users mr-2"></i>Members</a></li>
-            <li><a class="hover-glow" href="#"><i class="fa-solid fa-calendar-days mr-2"></i>Events</a></li>
-          </ul>
-
-          {% if not user.is_authenticated %}
-          <div class="p-4 border-t border-base-300">
-            <p class="mb-2 font-semibold text-gray-700">Login</p>
-            <ul class="menu space-y-1">
-              <li><a class="hover-glow"
-                  href="{% url 'admin_panel:admin_login_view' %}"><i class="fa-solid fa-user-shield mr-2"></i>Admin
-                  Login</a></li>
-              <li><a class="hover-glow"
-                  href="{% url 'clubs:club_login' %}"><i class="fa-solid fa-user-gear mr-2"></i>Club Login</a></li>
-              <li><a class="hover-glow" href="#"><i class="fa-solid fa-user mr-2"></i>User Login</a></li>
-            </ul>
-          </div>
-          {% else %}
-          <div class="p-4 border-t border-base-300 flex items-center space-x-2">
-            {% if user.is_superuser %}
-            <form action="{% url 'admin_panel:admin_logout_view' %}" method="POST">
-              {% elif user.is_club_admin %}
-              <form action="{% url 'club_logout' %}" method="POST">
-                {% comment %} {% else %}
-                <form action="{% url 'user_logout' %}" method="POST"> {% endcomment %}
-                  {% endif %}
-                  {% csrf_token %}
-                  <button type="submit" class="btn btn-sm btn-error w-full hover-glow">
-                    <i class="fa-solid fa-right-from-bracket mr-2"></i> Logout
-                  </button>
-                </form>
           </div>
           {% endif %}
         </div>
       </div>
+
+      <!-- Messages -->
+      {% if messages %}
+      <div class="fixed top-5 right-48 z-50 space-y-2 w-96">
+        {% for message in messages %}
+        <div class="px-4 py-3 rounded-lg shadow text-white transition duration-500
+          {% if message.tags == 'success' %}bg-green-500
+          {% elif message.tags == 'error' %}bg-red-500
+          {% elif message.tags == 'warning' %}bg-yellow-400 text-black
+          {% elif message.tags == 'info' %}bg-blue-500
+          {% else %}bg-gray-800
+          {% endif %}">
+          <p class="font-medium">{{ message }}</p>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <main class="flex-grow p-6">
+        {% block content %}{% endblock %}
+      </main>
+
+      <footer class="bg-white text-center p-4 text-sm text-gray-500">
+        &copy; 2025 Jahangirnagar University Club Management System
+      </footer>
     </div>
 
-    <script>
-      setTimeout(() => {
-        const alerts = document.querySelectorAll('.z-50 .alert-message')
-        alerts.forEach((alert) => {
-          alert.classList.add('opacity-0', 'transition', 'duration-500')
-          setTimeout(() => alert.remove(), 500)
-        })
-      }, 4000)
-    </script>
-  </body>
+    <!-- Drawer Sidebar -->
+    <div class="drawer-side z-50">
+      <label for="my-drawer" class="drawer-overlay"></label>
+      <div class="flex flex-col justify-between h-full w-80 bg-base-200 relative">
+        <label for="my-drawer" class="absolute bg-red-800 rounded-full text-white p-2 right-6 top-6 cursor-pointer hover:bg-white hover:text-red-600">
+          <i class="fa-solid fa-xmark text-3xl"></i>
+        </label>
 
+        <ul class="menu p-4 flex-grow space-y-2 mt-20">
+          <li><a class="transition hover:shadow-lg hover:-translate-y-0.5" href="#"><i class="fa-solid fa-house mr-2"></i>Home</a></li>
+          <li><a class="transition hover:shadow-lg hover:-translate-y-0.5" href="#"><i class="fa-solid fa-users mr-2"></i>Members</a></li>
+          <li><a class="transition hover:shadow-lg hover:-translate-y-0.5" href="#"><i class="fa-solid fa-calendar-days mr-2"></i>Events</a></li>
+        </ul>
+
+        {% if not user.is_authenticated %}
+        <div class="p-4 border-t border-base-300">
+          <p class="mb-2 font-semibold text-gray-700">Login</p>
+          <ul class="menu space-y-1">
+            <li><a href="{% url 'admin_panel:admin_login_view' %}"><i class="fa-solid fa-user-shield mr-2"></i>Admin Login</a></li>
+            <li><a href="{% url 'clubs:club_login' %}"><i class="fa-solid fa-user-gear mr-2"></i>Club Login</a></li>
+          </ul>
+        </div>
+        {% else %}
+        <div class="p-4 border-t border-base-300">
+         
+          {% if club %}
+            <form action="{% url 'clubs:club_logout' %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-error">Club Logout</button>
+            </form>
+          {% else %}
+            <form action="{% url 'admin_panel:admin_logout_view' %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-error">Admin Logout</button>
+            </form>
+          {% endif %}</a>
+
+          
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <script>
+    setTimeout(() => {
+      const alerts = document.querySelectorAll('.z-50 .transition');
+      alerts.forEach((alert) => {
+        alert.classList.add('opacity-0');
+        setTimeout(() => alert.remove(), 500);
+      });
+    }, 4000);
+  </script>
+</body>
 </html>

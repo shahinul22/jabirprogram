@@ -1,18 +1,13 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render
+from clubs.models import ClubRegistration
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
-def home(request):
-    return render(request, 'base.html')
-
 
 @login_required
-def user_profile_view(request):
-    return render(request, 'user/profile.html')
+def home(request):
+    user = request.user
+    try:
+        club = ClubRegistration.objects.get(club_username=user.username)
+    except ClubRegistration.DoesNotExist:
+        club = None
 
-
-
-def user_logout_view(request):
-    if request.method == "POST":
-        logout(request)
-        return redirect('home')
-    return redirect('home')
+    return render(request, 'base.html', {'club': club})

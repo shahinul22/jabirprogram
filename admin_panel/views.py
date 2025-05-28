@@ -153,6 +153,11 @@ JU Club Management Admin
     return render(request, "admin_panel/confirm_delete.html", {"club": club})
 
 
+from django.contrib.auth import logout as auth_logout
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
 def admin_logout_view(request):
-    logout(request)
-    return redirect('home')
+    auth_logout(request)
+    messages.success(request, "You have been logged out successfully.")
+    return redirect("admin_panel:admin_login_view")

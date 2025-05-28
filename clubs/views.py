@@ -106,8 +106,12 @@ from django.shortcuts import redirect
 
 
 
-def club_logout_view(request):
-    if request.method == "POST":
-        logout(request)
-        return redirect('club_login')  # or another page
-    return redirect('home')
+from django.contrib.auth import logout
+from django.shortcuts import redirect
+from django.contrib.auth import logout
+from django.shortcuts import redirect
+
+@login_required
+def club_logout(request):
+    logout(request)
+    return redirect("clubs:club_login")  # Or wherever you want to redirect after logout

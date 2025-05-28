@@ -1,14 +1,13 @@
-# urls.py
 from django.urls import path
 from .views import (
     admin_login_view,
     admin_profile_view,
     club_detail,
     confirm_delete_view,
-    admin_logout_view
+    admin_logout_view,
 )
 
-app_name = "admin_panel"  # ✅ Namespace for URLs
+app_name = "admin_panel"  # ✅ THIS must be defined before urlpatterns
 
 urlpatterns = [
     path("login/", admin_login_view, name="admin_login_view"),

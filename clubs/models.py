@@ -57,7 +57,3 @@ class ClubRegistration(models.Model):
         return self.club_name
 
 
-# In models.py or in User model via AbstractUser
-@property
-def is_club_admin(self):
-    return hasattr(self, 'club')  # or any way you track it
