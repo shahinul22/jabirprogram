@@ -2,11 +2,114 @@
 {% block title %}Clubs - Profile{% endblock %}
 
 {% block content %}
-  <div class="container">
+  <div class="container mx-auto p-4">
     <h1 class="text-3xl font-bold mb-4">User Profile</h1>
     <p class="mb-2 text-gray-700">Welcome to your profile page!</p>
     <p class="mb-6 text-gray-600">Here you can view and manage club registrations.</p>
 
+    {% if status == 'approved' %}
+      {% if club %}
+        <div class="bg-white shadow p-6 rounded">
+          <h2 class="text-3xl font-semibold mb-4">   {{ club.name }}</h2>
+          <p class="mb-2"><strong>Category:</strong> {{ club.category }}</p>
+          <p class="mb-2"><strong>Established on:</strong> {{ club.date_established|date:"F j, Y" }}</p>
+          <p class="mb-4">{{ club.description|default:"No description provided." }}</p>
+
+          {% if club.logo %}
+            <img src="{{ club.logo.url }}" alt="Club Logo" class="h-24 mb-4 rounded">
+          {% else %}
+            <p class="text-sm text-gray-500 mb-4">No logo uploaded.</p>
+          {% endif %}
+
+          {% if club.cover_photo %}
+            <img src="{{ club.cover_photo.url }}" alt="Cover Photo" class="h-48 w-full object-cover rounded mb-6">
+          {% else %}
+            <p class="text-sm text-gray-500 mb-6">No cover photo uploaded.</p>
+          {% endif %}
+
+          <h3 class="text-2xl font-semibold mb-2">Mission & Vision</h3>
+          <p class="mb-4">{{ club.mission_and_vision|default:"Not provided." }}</p>
+
+          <h3 class="text-2xl font-semibold mb-2">Membership Rules</h3>
+          <p class="mb-6">{{ club.membership_rules|default:"Not provided." }}</p>
+
+          {% if club.members.exists %}
+            <h3 class="text-2xl font-semibold mb-3">Club Members</h3>
+            <ul class="mb-6">
+              {% for member in club.members.all %}
+                <li class="mb-2">
+                  <strong>{{ member.role|title }}:</strong> {{ member.name }} ({{ member.student_id }})<br>
+                  Email: {{ member.email }} | Phone: {{ member.phone }}<br>
+                  Department/Year: {{ member.department_year }}
+                </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p class="mb-6 text-gray-500">No members added yet.</p>
+          {% endif %}
+
+          {% if club.advisors.exists %}
+            <h3 class="text-2xl font-semibold mb-3">Club Advisors</h3>
+            <ul class="mb-6">
+              {% for advisor in club.advisors.all %}
+                <li class="mb-2">{{ advisor.name }} — Contact: {{ advisor.contact }}</li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p class="mb-6 text-gray-500">No advisors assigned.</p>
+          {% endif %}
+
+          {% if club.social_links %}
+            <h3 class="text-2xl font-semibold mb-3">Social Links</h3>
+            <ul class="list-disc list-inside mb-4">
+              {% if club.social_links.facebook %}
+                <li><a href="{{ club.social_links.facebook }}" class="text-blue-600 hover:underline" target="_blank">Facebook</a></li>
+              {% endif %}
+              {% if club.social_links.instagram %}
+                <li><a href="{{ club.social_links.instagram }}" class="text-pink-600 hover:underline" target="_blank">Instagram</a></li>
+              {% endif %}
+              {% if club.social_links.linkedin %}
+                <li><a href="{{ club.social_links.linkedin }}" class="text-blue-700 hover:underline" target="_blank">LinkedIn</a></li>
+              {% endif %}
+              {% if club.social_links.youtube %}
+                <li><a href="{{ club.social_links.youtube }}" class="text-red-600 hover:underline" target="_blank">YouTube</a></li>
+              {% endif %}
+              {% if club.social_links.website %}
+                <li><a href="{{ club.social_links.website }}" class="text-green-600 hover:underline" target="_blank">Website</a></li>
+              {% endif %}
+              {% if not club.social_links.facebook and not club.social_links.instagram and not club.social_links.linkedin and not club.social_links.youtube and not club.social_links.website %}
+                <li>No social links provided.</li>
+              {% endif %}
+            </ul>
+          {% else %}
+            <p class="mb-6 text-gray-500">No social links added.</p>
+          {% endif %}
+
+          <!-- Edit Button -->
+          {% if status == 'pending' %}
+            <a href="{% url 'clubs:edit_club' club.id %}" class="...">Edit nai Club Info</a>
+          {% elif status == 'approved' %}
+            <a href="{% url 'clubs:edit_club' club.id %}" class="...">Edit club Club Info</a>
+          {% endif %}
+
+        </div>
+      {% else %}
+        <h2 class="text-xl font-semibold text-red-600">Error</h2>
+        <p class="text-gray-600">Your club is approved, but the club data was not found.</p>
+      {% endif %}
+
+    {% elif status == 'pending' %}
+      {% if club %}
+        <h2 class="text-xl font-semibold text-yellow-600 mb-1">Registration Pending</h2>
+        <p class="text-gray-700 mb-1">Club Name: {{ club.club_name }}</p>
+        <p class="text-gray-600">Your club registration is under review.</p>
+      {% else %}
+        <p class="text-gray-600">Your registration is pending, but data is missing.</p>
+      {% endif %}
+
+    {% elif status == 'error_missing_club' %}
+      <h2 class="text-xl font-semibold text-red-600">Something went wrong</h2>
+      <p class="text-gray-600">Your club is approved, but the main club data was not found.</p>
+    {% endif %}
   </div>
-  
 {% endblock %}

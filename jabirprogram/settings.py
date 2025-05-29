@@ -31,6 +31,8 @@ INSTALLED_APPS = [
     'clubs',
     'admin_panel',
     'core',
+    'widget_tweaks',
+
     
 ]
 
@@ -120,9 +122,17 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / "static"]
 
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
+
+
+
 # mail for reject the approval reason
 
 from decouple import config
+
+
 # Email configuration
 # Use environment variables for sensitive information
 # For Gmail, you need to create an App Password if you have 2FA enabled

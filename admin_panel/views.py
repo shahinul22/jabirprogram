@@ -41,6 +41,15 @@ def admin_profile_view(request):
     return render(request, 'admin_panel/profile.html', context)
 
 
+from django.shortcuts import render, get_object_or_404, redirect
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib import messages
+from django.conf import settings
+from django.core.mail import send_mail
+
+# from .models import ClubRegistration
+
+
 @csrf_exempt
 def club_detail(request, pk):
     club = get_object_or_404(ClubRegistration, pk=pk)
@@ -50,14 +59,13 @@ def club_detail(request, pk):
         action = request.POST.get("action")
 
         if action == "approve":
-            club.is_approved = True
-            club.save()
+            club.approve()  # ✅ This creates and links the Club instance
 
             subject = f"Your Club '{club.club_name}' Has Been Approved"
             message = f"""
 Dear {club.president_name} and {club.secretary_name},
 
-We are pleased to inform you that your club registration for \"{club.club_name}\" has been approved by the admin.
+We are pleased to inform you that your club registration for "{club.club_name}" has been approved by the admin.
 
 You can now log in using your username and password to manage your club activities.
 
@@ -69,7 +77,7 @@ JU Club Management Team
                 send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, recipient_list, fail_silently=True)
 
             messages.success(request, f"{club.club_name} has been approved and email sent.")
-            return redirect("admin_panel:admin_profile_view")  # ✅ Corrected
+            return redirect("admin_panel:admin_profile_view")
 
         elif action == "initiate_delete":
             show_delete_form = True
@@ -89,9 +97,12 @@ JU Club Management Team
 
             club.delete()
             messages.warning(request, f"{club.club_name} has been deleted.")
-            return redirect("admin_panel:admin_profile_view")  # ✅ Corrected
+            return redirect("admin_panel:admin_profile_view")
 
-    return render(request, "admin_panel/detail.html", {"club": club, "show_delete_form": show_delete_form})
+    return render(request, "admin_panel/detail.html", {
+        "club": club,
+        "show_delete_form": show_delete_form
+    })
 
 
 @login_required

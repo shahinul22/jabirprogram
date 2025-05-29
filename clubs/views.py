@@ -15,62 +15,124 @@ from .models import ClubRegistration
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from clubs.models import ClubRegistration
-
 @login_required
 def club_profile_view(request):
-    club = ClubRegistration.objects.filter(club_username=request.user.username).first()
-    if not club:
-        # Optionally redirect or show an error
-        return redirect('clubs:club_register')  # or return 404
-    return render(request, 'clubs/profile.html', {'club': club})
+    username = request.user.username
+    club_reg = ClubRegistration.objects.filter(club_username=username).first()
+
+    if club_reg:
+        if club_reg.approved_club:
+            return render(request, 'clubs/profile.html', {
+                'club': club_reg.approved_club,
+                'status': 'approved',
+                'club_registration': club_reg  # <-- added this
+            })
+        else:
+            return render(request, 'clubs/profile.html', {
+                'club': club_reg,
+                'status': 'pending'
+            })
+
+    return redirect('clubs:club_register')
+
+
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib import messages
+from .models import ClubRegistration
+from .forms import ClubRegistrationForm  # We'll create this form next
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.hashers import make_password
+from django.shortcuts import get_object_or_404, render, redirect
+from .models import ClubRegistration
+from .forms import ClubRegistrationForm
+
+from django.contrib.auth.hashers import make_password
+
+from django.contrib.auth.hashers import make_password
+
+from django.shortcuts import get_object_or_404, redirect, render
+from django.contrib.auth.hashers import make_password
+from .forms import ClubForm, ClubRegistrationForm
+
+
+from django.shortcuts import get_object_or_404, redirect, render
+from django.contrib.auth.hashers import make_password
+from .models import Club, ClubRegistration
+from .forms import ClubForm, ClubRegistrationForm  # Make sure these forms exist and are imported
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.hashers import make_password
+from .models import Club, ClubRegistration
+from .forms import ClubForm, ClubRegistrationForm
+
+def edit_club(request, club_id):
+    # 1. Make sure this ID refers to an actual approved club
+    club = get_object_or_404(Club, id=club_id)
+
+    # 2. Get matching ClubRegistration row (if any)
+    registration = ClubRegistration.objects.filter(approved_club=club).first()
+
+    # 3. POST handling
+    if request.method == 'POST':
+        form_club = ClubForm(request.POST, request.FILES, instance=club)
+        form_registration = ClubRegistrationForm(request.POST, instance=registration)
+
+        if form_club.is_valid() and form_registration.is_valid():
+            form_club.save()
+
+            # Save club registration but handle password hashing
+            reg_obj = form_registration.save(commit=False)
+            new_password = form_registration.cleaned_data.get('club_password')
+            if new_password:
+                reg_obj.club_password = make_password(new_password)
+            reg_obj.approved_club = club  # Ensure correct FK
+            reg_obj.save()
+
+            return redirect('clubs:club_profile_view')  # ✅ Adjust to your actual URL name
+
+    # 4. GET handling
+    else:
+        form_club = ClubForm(instance=club)
+        form_registration = ClubRegistrationForm(instance=registration)
+
+    context = {
+        'form_club': form_club,
+        'form_registration': form_registration,
+    }
+    return render(request, 'clubs/edit_club.html', context)
+
 
 # ========== Public Views ==========
 
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.contrib.auth.hashers import make_password
+from .forms import ClubRegistrationForm
+
 def club_register(request):
     if request.method == "POST":
-        club_username = request.POST["club_username"]
-        raw_password = request.POST["password"]
-        hashed_password = make_password(raw_password)
+        form = ClubRegistrationForm(request.POST)
+        if form.is_valid():
+            club = form.save(commit=False)
+            raw_password = form.cleaned_data["club_password"]
+            club.club_password = make_password(raw_password)  # hash the password
+            club.save()
+            messages.success(request, "Registration successful! Please wait for admin approval.")
+            return redirect("clubs:club_login")
+        else:
+            messages.error(request, "Please correct the errors below.")
+    else:
+        form = ClubRegistrationForm()
 
-        club = ClubRegistration(
-            club_username=club_username,
-            club_password=hashed_password,
-            club_name=request.POST["club_name"],
-            club_category=request.POST.get("club_category", ""),
-            date_established=request.POST.get("date_established", None),
-            president_name=request.POST.get("president_name", ""),
-            president_student_id=request.POST.get("president_student_id", ""),
-            president_email=request.POST.get("president_email", ""),
-            president_phone=request.POST.get("president_phone", ""),
-            president_department_year=request.POST.get("president_department_year", ""),
-            secretary_name=request.POST.get("secretary_name", ""),
-            secretary_student_id=request.POST.get("secretary_student_id", ""),
-            secretary_email=request.POST.get("secretary_email", ""),
-            secretary_phone=request.POST.get("secretary_phone", ""),
-            secretary_department_year=request.POST.get("secretary_department_year", ""),
-            treasurer_name=request.POST.get("treasurer_name", ""),
-            treasurer_student_id=request.POST.get("treasurer_student_id", ""),
-            treasurer_email=request.POST.get("treasurer_email", ""),
-            treasurer_phone=request.POST.get("treasurer_phone", ""),
-            treasurer_department_year=request.POST.get("treasurer_department_year", ""),
-            other_executive_members=request.POST.get("other_executive_members", ""),
-            club_constitution=request.POST.get("club_constitution", ""),
-            mission_and_vision=request.POST.get("mission_and_vision", ""),
-            membership_rules=request.POST.get("membership_rules", ""),
-            advisor_name=request.POST.get("advisor_name", ""),
-            advisor_contact=request.POST.get("advisor_contact", ""),
-            facebook_link=request.POST.get("facebook_link", ""),
-            instagram_link=request.POST.get("instagram_link", ""),
-            linkedin_link=request.POST.get("linkedin_link", ""),
-            youtube_link=request.POST.get("youtube_link", ""),
-            website_link=request.POST.get("website_link", ""),
-        )
-        club.save()
-        messages.success(request, "Registration successful! Please wait for approval.")
-        return redirect("clubs:club_login")
+    return render(request, "clubs/register.html", {"form": form})
 
-    return render(request, "clubs/register.html")
 
+
+from django.contrib.auth import login
+from django.contrib.auth.hashers import check_password
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .models import ClubRegistration
+from django.contrib.auth.models import User
 
 def club_login(request):
     if request.method == "POST":
@@ -87,16 +149,21 @@ def club_login(request):
             messages.warning(request, "Your club is not yet approved.")
             return redirect("clubs:club_login")
 
+        # Check if club.club_password is hashed or plain text.
+        # If it's hashed, use check_password.
+        # Otherwise, compare directly (NOT recommended for production).
         if check_password(password, club.club_password):
             user, created = User.objects.get_or_create(username=club.club_username)
             if created:
                 user.set_password(password)
                 user.save()
+
             login(request, user)
-            return redirect("home")
+            # Use a URL that definitely exists; if you have 'home', good, else use "/"
+            return redirect("home")  # or redirect("/") if 'home' not defined
         else:
             messages.error(request, "Invalid password.")
-            return redirect("club_login")
+            return redirect("clubs:club_login")
 
     return render(request, "clubs/login.html")
 

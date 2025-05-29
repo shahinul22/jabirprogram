@@ -1,42 +1,39 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}JU Clubs{% endblock %}</title>
-
-  <!-- Tailwind CSS + DaisyUI -->
+  
+  <!-- Stylesheets -->
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.20/dist/full.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="{% static 'css/output.css' %}" rel="stylesheet">
+  
+  <!-- Tailwind Configuration -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.20/dist/full.min.css" rel="stylesheet" />
-
-  <!-- FontAwesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-
-  <!-- Custom CSS -->
-  <link href="{% static 'css/output.css' %}" rel="stylesheet" />
-
   <script>
-  tailwind.config = {
-    theme: {
-      extend: {},
-    },
-    daisyui: {
-      themes: ["light", "dark"], // optional, but good to have
-    },
-  };
-</script>
-<script src="https://cdn.jsdelivr.net/npm/daisyui@4.4.20"></script>
-
+    tailwind.config = {
+      theme: {
+        extend: {},
+      },
+      daisyui: {
+        themes: ["light", "dark"],
+      },
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/daisyui@4.4.20"></script>
 </head>
 
-<body class="min-h-screen  flex flex-col bg-slate-50 text-gray-800 lg:mx-10 lg:mt-3">
+<body class="min-h-screen flex flex-col bg-slate-50 text-gray-800 lg:mx-10 lg:mt-3">
   <div class="drawer">
-    <input id="my-drawer" type="checkbox" class="drawer-toggle" />
-
+    <input id="my-drawer" type="checkbox" class="drawer-toggle">
+    
+    <!-- Main Content -->
     <div class="drawer-content flex flex-col">
       <!-- Navbar -->
-      <div class="navbar bg-white shadow-sm px-4 mt-1">
+      <nav class="navbar bg-white shadow-sm px-4 mt-1">
         <div class="navbar-start">
           <label for="my-drawer" class="btn btn-ghost lg:hidden">
             <i class="fa-solid fa-bars text-xl"></i>
@@ -44,182 +41,234 @@
           <a href="{% url 'home' %}" class="btn btn-ghost text-2xl font-bold">JuClubs</a>
         </div>
 
+        <!-- Desktop Navigation -->
         <div class="navbar-center hidden lg:flex">
           <ul class="menu menu-horizontal px-1 gap-2">
-            <li><a class="transition hover:shadow-lg hover:-translate-y-0.5" href="#"><i class="fa-solid fa-house mr-2"></i>Home</a></li>
-            <li><a class="transition hover:shadow-lg hover:-translate-y-0.5" href="#"><i class="fa-solid fa-users mr-2"></i>Members</a></li>
-            <li><a class="transition hover:shadow-lg hover:-translate-y-0.5" href="#"><i class="fa-solid fa-calendar-days mr-2"></i>Events</a></li>
+            <li><a class="transition hover:shadow-lg hover:-translate-y-0.5" href="#">
+              <i class="fa-solid fa-house mr-2"></i>Home
+            </a></li>
+            <li><a class="transition hover:shadow-lg hover:-translate-y-0.5" href="#">
+              <i class="fa-solid fa-users mr-2"></i>Members
+            </a></li>
+            <li><a class="transition hover:shadow-lg hover:-translate-y-0.5" href="#">
+              <i class="fa-solid fa-calendar-days mr-2"></i>Events
+            </a></li>
           </ul>
         </div>
 
+        <!-- Auth Controls -->
         <div class="navbar-end space-x-4">
           {% if user.is_authenticated %}
-          <div class="navbar-end flex items-center space-x-3">
-  <!-- Search Button -->
-  <div class="tooltip tooltip-bottom" data-tip="Search">
-      <button class="btn btn-ghost btn-circle">
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-    </svg>
-  </button>
-    </div>
-  
-
-  <!-- Notification Button with Tooltip -->
-<div class="tooltip tooltip-bottom" data-tip="Notifications">
-  <button class="btn btn-ghost btn-circle">
-    <div class="indicator">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-          d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-      </svg>
-      <span class="badge badge-xs badge-primary indicator-item"></span>
-    </div>
-  </button>
-</div>
-
-
-  <!-- Avatar Dropdown -->
-  <div class="dropdown dropdown-end">
-    <div class="tooltip tooltip-bottom" data-tip="{{ club.club_name }}">
-    <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
-      <div class="w-10 rounded-full overflow-hidden">
-        <img alt="User avatar" src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp" />
-      </div>
-    </div>
-  </div>
-    
-    <ul tabindex="0" class="menu menu-sm my-2 dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
-      
-      {% if club %}
-        <li><h2>Welcome, {{ club.club_name }}</h2></li>
-        <button class="btn btn-sm btn-error">
-                <a href="{% url 'clubs:club_profile_view' %}">Profile</a>
-        </button>
-        <button class="btn btn-sm btn-error">
-            <a href="{% url 'clubs:club_logout' %}">Club Logout</a>
-        </button>
-      {%else%}
-        <p>Admin </p>
-        <button class="btn btn-sm btn-error">
-                <a href="{% url 'admin_panel:admin_profile_view' %}">Profile</a>
-            </button>
-            <button class="btn btn-sm btn-error">
-                <a href="{% url 'admin_panel:admin_logout_view' %}">Admin Logout</a>
-            </button>
-      {% endif %}
-    </ul>
-  </div>
-</div>
-
+            <div class="flex items-center space-x-3">
+              <!-- Search -->
+              <div class="tooltip tooltip-bottom" data-tip="Search">
+                <button class="btn btn-ghost btn-circle">
+                  <i class="fa-solid fa-magnifying-glass"></i>
+                </button>
+              </div>
+              
+              <!-- Notifications -->
+              <div class="tooltip tooltip-bottom" data-tip="Notifications">
+                <button class="btn btn-ghost btn-circle">
+                  <div class="indicator">
+                    <i class="fa-solid fa-bell"></i>
+                    <span class="badge badge-xs badge-primary indicator-item"></span>
+                  </div>
+                </button>
+              </div>
+              
+              <!-- Theme Toggle -->
+              <div class="tooltip tooltip-bottom" data-tip="Toggle theme">
+                <label class="swap swap-rotate">
+                  <input type="checkbox" class="theme-controller" value="dark">
+                  <i class="fa-solid fa-sun swap-off text-xl"></i>
+                  <i class="fa-solid fa-moon swap-on text-xl"></i>
+                </label>
+              </div>
+              
+              <!-- User Dropdown -->
+              <div class="dropdown dropdown-end">
+                <div class="tooltip tooltip-bottom" data-tip="{% firstof club.club_name 'Admin' %}">
+                  <div tabindex="0" class="btn btn-ghost btn-circle avatar">
+                    <div class="w-10 rounded-full bg-gray-200 border-2 border-dashed">
+                      {% if club %}
+                        <span class="text-xl font-bold text-gray-600 flex items-center justify-center h-full">
+                          {{ club.club_name|first|upper }}
+                        </span>
+                      {% else %}
+                        <i class="fa-solid fa-user-gear text-gray-600 text-xl flex items-center justify-center h-full"></i>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+                
+                <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
+                  {% if club %}
+                    <li class="menu-title p-2">Club: {{ club.club_name }}</li>
+                    <li><a href="{% url 'clubs:club_profile_view' %}">
+                      <i class="fa-solid fa-user mr-2"></i> Profile
+                    </a></li>
+                    <li><a href="{% url 'clubs:club_logout' %}">
+                      <i class="fa-solid fa-arrow-right-from-bracket mr-2"></i> Logout
+                    </a></li>
+                  {% else %}
+                    <li class="menu-title p-2">Admin Panel</li>
+                    <li><a href="{% url 'admin_panel:admin_profile_view' %}">
+                      <i class="fa-solid fa-user-shield mr-2"></i> Profile
+                    </a></li>
+                    <li><a href="{% url 'admin_panel:admin_logout_view' %}">
+                      <i class="fa-solid fa-arrow-right-from-bracket mr-2"></i> Logout
+                    </a></li>
+                  {% endif %}
+                </ul>
+              </div>
+            </div>
           {% else %}
-          <div class="flex items-center space-x-2">
-            <!-- Login Dropdown -->
-            <div class="dropdown dropdown-end">
-              <button class="btn btn-sm btn-primary flex items-center space-x-2 transition hover:shadow-lg hover:-translate-y-0.5">
-                <i class="fa-solid fa-arrow-right-to-bracket"></i><span>Login</span>
-              </button>
-              <ul class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
-                <li><a href="{% url 'admin_panel:admin_login_view' %}">Admin Login</a></li>
-                <li><a href="{% url 'clubs:club_login' %}">Club Login</a></li>
-                <li><a href="#">User Login</a></li>
-              </ul>
+            <!-- Auth Buttons -->
+            <div class="flex items-center space-x-2">
+              <!-- Login Dropdown -->
+              <div class="dropdown dropdown-end">
+                <button class="btn btn-primary">
+                  <i class="fa-solid fa-arrow-right-to-bracket mr-2"></i>Login
+                </button>
+                <ul class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
+                  <li><a href="{% url 'admin_panel:admin_login_view' %}">
+                    <i class="fa-solid fa-user-shield mr-2"></i>Admin
+                  </a></li>
+                  <li><a href="{% url 'clubs:club_login' %}">
+                    <i class="fa-solid fa-users mr-2"></i>Club
+                  </a></li>
+                  <li><a href="#">
+                    <i class="fa-solid fa-user mr-2"></i>User
+                  </a></li>
+                </ul>
+              </div>
+              
+              <!-- Register Dropdown -->
+              <div class="dropdown dropdown-end">
+                <button class="btn btn-secondary">
+                  <i class="fa-solid fa-user-plus mr-2"></i>Register
+                </button>
+                <ul class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
+                  <li><a href="{% url 'clubs:club_register' %}">
+                    <i class="fa-solid fa-users mr-2"></i>Club
+                  </a></li>
+                  <li><a href="#">
+                    <i class="fa-solid fa-user mr-2"></i>User
+                  </a></li>
+                </ul>
+              </div>
             </div>
-
-            <!-- Register Dropdown -->
-            <div class="dropdown dropdown-end">
-              <button class="btn btn-sm btn-secondary flex items-center space-x-2 transition hover:shadow-lg hover:-translate-y-0.5">
-                <i class="fa-solid fa-user-plus"></i><span>Register</span>
-              </button>
-              <ul class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
-                <li><a href="{% url 'clubs:club_register' %}">Club Register</a></li>
-                <li><a href="#">User Register</a></li>
-              </ul>
-            </div>
-          </div>
           {% endif %}
         </div>
-      </div>
+      </nav>
 
       <!-- Messages -->
       {% if messages %}
-      <div class="fixed top-5 right-48 z-50 space-y-2 w-96">
+      <div class="fixed top-5 right-5 mr-10 z-50 space-y-2 w-96 max-w-[90vw]">
         {% for message in messages %}
-        <div class="px-4 py-3 rounded-lg shadow text-white transition duration-500
-          {% if message.tags == 'success' %}bg-green-500
-          {% elif message.tags == 'error' %}bg-red-500
-          {% elif message.tags == 'warning' %}bg-yellow-400 text-black
-          {% elif message.tags == 'info' %}bg-blue-500
-          {% else %}bg-gray-800
-          {% endif %}">
-          <p class="font-medium">{{ message }}</p>
+        <div class="alert alert-{{ message.tags }} shadow-lg transition-opacity duration-500">
+          <div>
+            {% if message.tags == 'success' %}
+              <i class="fa-solid fa-circle-check"></i>
+            {% elif message.tags == 'error' %}
+              <i class="fa-solid fa-circle-exclamation"></i>
+            {% elif message.tags == 'warning' %}
+              <i class="fa-solid fa-triangle-exclamation"></i>
+            {% elif message.tags == 'info' %}
+              <i class="fa-solid fa-circle-info"></i>
+            {% endif %}
+            <span>{{ message }}</span>
+          </div>
         </div>
         {% endfor %}
       </div>
       {% endif %}
 
-      <main class="flex-grow p-6">
+      <!-- Main Content -->
+      <main class="flex-grow p-4 md:p-6">
         {% block content %}{% endblock %}
       </main>
 
-      <footer class="bg-white text-center p-4 text-sm text-gray-500">
-        &copy; 2025 Jahangirnagar University Club Management System
+      <!-- Footer -->
+      <footer class="bg-white text-center p-4 text-sm text-gray-500 border-t">
+        &copy; {{ now|date:"Y" }} Jahangirnagar University Club Management System
       </footer>
     </div>
 
-    <!-- Drawer Sidebar -->
+    <!-- Mobile Sidebar -->
     <div class="drawer-side z-50">
       <label for="my-drawer" class="drawer-overlay"></label>
       <div class="flex flex-col justify-between h-full w-80 bg-base-200 relative">
-        <label for="my-drawer" class="absolute bg-red-800 rounded-full text-white p-2 right-6 top-6 cursor-pointer hover:bg-white hover:text-red-600">
-          <i class="fa-solid fa-xmark text-3xl"></i>
+        <label for="my-drawer" class="absolute bg-red-600 rounded-full text-white p-2 right-4 top-4 cursor-pointer hover:bg-white hover:text-red-600 transition-colors">
+          <i class="fa-solid fa-xmark text-xl"></i>
         </label>
 
-        <ul class="menu p-4 flex-grow space-y-2 mt-20">
-          <li><a class="transition hover:shadow-lg hover:-translate-y-0.5" href="#"><i class="fa-solid fa-house mr-2"></i>Home</a></li>
-          <li><a class="transition hover:shadow-lg hover:-translate-y-0.5" href="#"><i class="fa-solid fa-users mr-2"></i>Members</a></li>
-          <li><a class="transition hover:shadow-lg hover:-translate-y-0.5" href="#"><i class="fa-solid fa-calendar-days mr-2"></i>Events</a></li>
+        <ul class="menu p-4 flex-grow space-y-2 mt-16">
+          <li><a class="transition hover:shadow-lg hover:-translate-y-0.5" href="#">
+            <i class="fa-solid fa-house mr-2"></i>Home
+          </a></li>
+          <li><a class="transition hover:shadow-lg hover:-translate-y-0.5" href="#">
+            <i class="fa-solid fa-users mr-2"></i>Members
+          </a></li>
+          <li><a class="transition hover:shadow-lg hover:-translate-y-0.5" href="#">
+            <i class="fa-solid fa-calendar-days mr-2"></i>Events
+          </a></li>
         </ul>
 
-        {% if not user.is_authenticated %}
+        <!-- Auth Section -->
         <div class="p-4 border-t border-base-300">
-          <p class="mb-2 font-semibold text-gray-700">Login</p>
-          <ul class="menu space-y-1">
-            <li><a href="{% url 'admin_panel:admin_login_view' %}"><i class="fa-solid fa-user-shield mr-2"></i>Admin Login</a></li>
-            <li><a href="{% url 'clubs:club_login' %}"><i class="fa-solid fa-user-gear mr-2"></i>Club Login</a></li>
-          </ul>
-        </div>
-        {% else %}
-        <div class="p-4 border-t border-base-300">
-         
-          {% if club %}
-            <form action="{% url 'clubs:club_logout' %}" method="post">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-error">Club Logout</button>
-            </form>
+          {% if not user.is_authenticated %}
+            <p class="mb-2 font-semibold text-gray-700">Login Options</p>
+            <ul class="menu space-y-1">
+              <li><a href="{% url 'admin_panel:admin_login_view' %}">
+                <i class="fa-solid fa-user-shield mr-2"></i>Admin Login
+              </a></li>
+              <li><a href="{% url 'clubs:club_login' %}">
+                <i class="fa-solid fa-users mr-2"></i>Club Login
+              </a></li>
+            </ul>
           {% else %}
-            <form action="{% url 'admin_panel:admin_logout_view' %}" method="post">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-error">Admin Logout</button>
-            </form>
-          {% endif %}</a>
-
-          
+            <div class="flex flex-col gap-2">
+              {% if club %}
+                <a href="{% url 'clubs:club_logout' %}" class="btn btn-error w-full">
+                  <i class="fa-solid fa-arrow-right-from-bracket mr-2"></i>Club Logout
+                </a>
+              {% else %}
+                <a href="{% url 'admin_panel:admin_logout_view' %}" class="btn btn-error w-full">
+                  <i class="fa-solid fa-arrow-right-from-bracket mr-2"></i>Admin Logout
+                </a>
+              {% endif %}
+            </div>
+          {% endif %}
         </div>
-        {% endif %}
       </div>
     </div>
   </div>
 
   <script>
+    // Auto-dismiss messages
     setTimeout(() => {
-      const alerts = document.querySelectorAll('.z-50 .transition');
-      alerts.forEach((alert) => {
-        alert.classList.add('opacity-0');
-        setTimeout(() => alert.remove(), 500);
+      document.querySelectorAll('.alert').forEach(alert => {
+        alert.style.opacity = '0';
+        setTimeout(() => alert.remove(), 300);
       });
-    }, 4000);
+    }, 5000);
+
+    // Theme persistence
+    document.addEventListener('DOMContentLoaded', () => {
+      const themeToggle = document.querySelector('.theme-controller');
+      const currentTheme = localStorage.getItem('theme') || 'light';
+      
+      document.documentElement.setAttribute('data-theme', currentTheme);
+      themeToggle.checked = currentTheme === 'dark';
+      
+      themeToggle.addEventListener('change', () => {
+        const newTheme = themeToggle.checked ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+      });
+    });
   </script>
 </body>
 </html>
