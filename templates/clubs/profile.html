@@ -1,115 +1,447 @@
 {% extends 'base.html' %}
-{% block title %}Clubs - Profile{% endblock %}
+{% load static %}
+{% block title %}Club Profile - {{ club.name }}{% endblock %}
 
 {% block content %}
-  <div class="container mx-auto p-4">
-    <h1 class="text-3xl font-bold mb-4">User Profile</h1>
-    <p class="mb-2 text-gray-700">Welcome to your profile page!</p>
-    <p class="mb-6 text-gray-600">Here you can view and manage club registrations.</p>
-
-    {% if status == 'approved' %}
-      {% if club %}
-        <div class="bg-white shadow p-6 rounded">
-          <h2 class="text-3xl font-semibold mb-4">   {{ club.name }}</h2>
-          <p class="mb-2"><strong>Category:</strong> {{ club.category }}</p>
-          <p class="mb-2"><strong>Established on:</strong> {{ club.date_established|date:"F j, Y" }}</p>
-          <p class="mb-4">{{ club.description|default:"No description provided." }}</p>
-
+<main class="flex-grow p-4 md:p-6">
+  <div class="max-w-7xl mx-auto">
+    <!-- Hero Section -->
+    <div class="relative rounded-2xl overflow-hidden shadow-xl bg-gradient-to-r from-blue-600 to-indigo-700 mb-6">
+      <div class="h-64 md:h-80 w-full relative">
+        {% if club.cover_photo %}
+          <img src="{{ club.cover_photo.url }}" alt="{{ club.name }} cover" class="w-full h-full object-cover">
+        {% else %}
+          <div class="bg-gradient-to-r from-blue-700 to-indigo-800 w-full h-full flex items-center justify-center">
+            <i class="fa-solid fa-mountain-sun text-white text-6xl opacity-30"></i>
+          </div>
+        {% endif %}
+        
+        <!-- Gradient Overlay -->
+        <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+        
+        <!-- Club Logo and Info -->
+        <div class="absolute bottom-4 left-6 flex items-end">
           {% if club.logo %}
-            <img src="{{ club.logo.url }}" alt="Club Logo" class="h-24 mb-4 rounded">
+            <img src="{{ club.logo.url }}" alt="{{ club.name }} logo" class="w-24 h-24 md:w-32 md:h-32 rounded-xl border-4 border-white shadow-xl object-cover">
           {% else %}
-            <p class="text-sm text-gray-500 mb-4">No logo uploaded.</p>
+            <div class="w-24 h-24 md:w-32 md:h-32 rounded-xl border-4 border-white bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center text-white text-3xl font-bold">
+              {{ club.name|first|upper }}
+            </div>
           {% endif %}
-
-          {% if club.cover_photo %}
-            <img src="{{ club.cover_photo.url }}" alt="Cover Photo" class="h-48 w-full object-cover rounded mb-6">
-          {% else %}
-            <p class="text-sm text-gray-500 mb-6">No cover photo uploaded.</p>
-          {% endif %}
-
-          <h3 class="text-2xl font-semibold mb-2">Mission & Vision</h3>
-          <p class="mb-4">{{ club.mission_and_vision|default:"Not provided." }}</p>
-
-          <h3 class="text-2xl font-semibold mb-2">Membership Rules</h3>
-          <p class="mb-6">{{ club.membership_rules|default:"Not provided." }}</p>
-
-          {% if club.members.exists %}
-            <h3 class="text-2xl font-semibold mb-3">Club Members</h3>
-            <ul class="mb-6">
-              {% for member in club.members.all %}
-                <li class="mb-2">
-                  <strong>{{ member.role|title }}:</strong> {{ member.name }} ({{ member.student_id }})<br>
-                  Email: {{ member.email }} | Phone: {{ member.phone }}<br>
-                  Department/Year: {{ member.department_year }}
-                </li>
-              {% endfor %}
-            </ul>
-          {% else %}
-            <p class="mb-6 text-gray-500">No members added yet.</p>
-          {% endif %}
-
-          {% if club.advisors.exists %}
-            <h3 class="text-2xl font-semibold mb-3">Club Advisors</h3>
-            <ul class="mb-6">
-              {% for advisor in club.advisors.all %}
-                <li class="mb-2">{{ advisor.name }} — Contact: {{ advisor.contact }}</li>
-              {% endfor %}
-            </ul>
-          {% else %}
-            <p class="mb-6 text-gray-500">No advisors assigned.</p>
-          {% endif %}
-
-          {% if club.social_links %}
-            <h3 class="text-2xl font-semibold mb-3">Social Links</h3>
-            <ul class="list-disc list-inside mb-4">
-              {% if club.social_links.facebook %}
-                <li><a href="{{ club.social_links.facebook }}" class="text-blue-600 hover:underline" target="_blank">Facebook</a></li>
-              {% endif %}
-              {% if club.social_links.instagram %}
-                <li><a href="{{ club.social_links.instagram }}" class="text-pink-600 hover:underline" target="_blank">Instagram</a></li>
-              {% endif %}
-              {% if club.social_links.linkedin %}
-                <li><a href="{{ club.social_links.linkedin }}" class="text-blue-700 hover:underline" target="_blank">LinkedIn</a></li>
-              {% endif %}
-              {% if club.social_links.youtube %}
-                <li><a href="{{ club.social_links.youtube }}" class="text-red-600 hover:underline" target="_blank">YouTube</a></li>
-              {% endif %}
-              {% if club.social_links.website %}
-                <li><a href="{{ club.social_links.website }}" class="text-green-600 hover:underline" target="_blank">Website</a></li>
-              {% endif %}
-              {% if not club.social_links.facebook and not club.social_links.instagram and not club.social_links.linkedin and not club.social_links.youtube and not club.social_links.website %}
-                <li>No social links provided.</li>
-              {% endif %}
-            </ul>
-          {% else %}
-            <p class="mb-6 text-gray-500">No social links added.</p>
-          {% endif %}
-
-          <!-- Edit Button -->
-          {% if status == 'pending' %}
-            <a href="{% url 'clubs:edit_club' club.id %}" class="...">Edit nai Club Info</a>
-          {% elif status == 'approved' %}
-            <a href="{% url 'clubs:edit_club' club.id %}" class="...">Edit club Club Info</a>
-          {% endif %}
-
+          <div class="ml-4 mb-4">
+            <h1 class="text-2xl md:text-4xl font-bold text-white">{{ club.name }}</h1>
+            <div class="flex items-center mt-2 flex-wrap gap-2">
+              <span class="badge badge-lg badge-primary">{{ club.category }}</span>
+              <span class="text-white/80 flex items-center">
+                <i class="fa-solid fa-calendar-days mr-1"></i>
+                Est. {{ club.date_established|date:"F j, Y" }}
+              </span>
+              <span class="text-white/80 flex items-center">
+                <i class="fa-solid fa-users mr-1"></i>
+                {{ club.members.count }} Members
+              </span>
+            </div>
+          </div>
         </div>
-      {% else %}
-        <h2 class="text-xl font-semibold text-red-600">Error</h2>
-        <p class="text-gray-600">Your club is approved, but the club data was not found.</p>
-      {% endif %}
+        
+        <!-- Action Buttons -->
+        <div class="absolute bottom-6 right-6 z-20">
+          <a href="{% url 'clubs:edit_club' club.id %}" 
+             class="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/90 text-gray-800 hover:bg-white shadow-lg backdrop-blur-md transition-all duration-200"
+             data-tip="Edit Profile">
+            <i class="fa-solid fa-pen-to-square"></i>
+            <span class="font-semibold">Edit Profile</span>
+          </a>
+        </div>
 
-    {% elif status == 'pending' %}
-      {% if club %}
-        <h2 class="text-xl font-semibold text-yellow-600 mb-1">Registration Pending</h2>
-        <p class="text-gray-700 mb-1">Club Name: {{ club.club_name }}</p>
-        <p class="text-gray-600">Your club registration is under review.</p>
-      {% else %}
-        <p class="text-gray-600">Your registration is pending, but data is missing.</p>
-      {% endif %}
+      </div>
+    </div>
+    
+    <!-- Stats Dashboard -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 my-6">
+      <div class="stat-card bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl shadow-lg p-5 hover:shadow-xl transition-shadow transform hover:-translate-y-1">
+        <div class="flex items-center">
+          <div class="bg-white/20 p-3 rounded-lg mr-4">
+            <i class="fa-solid fa-users text-2xl"></i>
+          </div>
+          <div>
+            <div class="text-3xl font-bold">{{ club.members.count }}</div>
+            <div class="text-white/90 mt-1">Active Members</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="stat-card bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-xl shadow-lg p-5 hover:shadow-xl transition-shadow transform hover:-translate-y-1">
+        <div class="flex items-center">
+          <div class="bg-white/20 p-3 rounded-lg mr-4">
+            <i class="fa-solid fa-calendar-check text-2xl"></i>
+          </div>
+          <div>
+            <div class="text-3xl font-bold">24</div>
+            <div class="text-white/90 mt-1">Events This Year</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="stat-card bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-xl shadow-lg p-5 hover:shadow-xl transition-shadow transform hover:-translate-y-1">
+        <div class="flex items-center">
+          <div class="bg-white/20 p-3 rounded-lg mr-4">
+            <i class="fa-solid fa-trophy text-2xl"></i>
+          </div>
+          <div>
+            <div class="text-3xl font-bold">8</div>
+            <div class="text-white/90 mt-1">Awards Won</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="stat-card bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl shadow-lg p-5 hover:shadow-xl transition-shadow transform hover:-translate-y-1">
+        <div class="flex items-center">
+          <div class="bg-white/20 p-3 rounded-lg mr-4">
+            <i class="fa-solid fa-handshake text-2xl"></i>
+          </div>
+          <div>
+            <div class="text-3xl font-bold">5</div>
+            <div class="text-white/90 mt-1">Partners</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Tab Navigation -->
+    <div class="w-full overflow-x-auto">
+      <div class="tabs tabs-boxed bg-base-200 p-1 mb-8 rounded-xl min-w-max flex-nowrap flex gap-2 sm:justify-start">
+        <a class="tab tab-active text-sm sm:text-base font-medium whitespace-nowrap">About</a> 
+        <a class="tab text-sm sm:text-base font-medium whitespace-nowrap">Members</a> 
+        <a class="tab text-sm sm:text-base font-medium whitespace-nowrap">Events</a> 
+        <a class="tab text-sm sm:text-base font-medium whitespace-nowrap">Gallery</a> 
+        <a class="tab text-sm sm:text-base font-medium whitespace-nowrap">Resources</a>
+      </div>
+    </div>
 
-    {% elif status == 'error_missing_club' %}
-      <h2 class="text-xl font-semibold text-red-600">Something went wrong</h2>
-      <p class="text-gray-600">Your club is approved, but the main club data was not found.</p>
-    {% endif %}
+    
+    <div class="flex flex-col lg:flex-row gap-6">
+      <!-- Left Column -->
+      <div class="flex-grow lg:w-2/3 space-y-6">
+        <!-- About Section -->
+        <div class="card bg-base-100 shadow rounded-xl overflow-hidden">
+          <div class="card-body">
+            <h2 class="card-title text-2xl font-bold flex items-center mb-4">
+              <i class="fa-solid fa-circle-info text-primary mr-2"></i>
+              About Us
+            </h2>
+            
+            <div class="prose max-w-none">
+              <p class="text-gray-700 mb-6">
+                {{ club.description|default:"Founded in 2018, our club has grown to become one of the most active student organizations on campus. Our mission is to empower students with technical skills and foster innovation through collaborative projects, workshops, and networking opportunities." }}
+              </p>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Mission -->
+                <div class="bg-blue-50 p-4 rounded-lg">
+                  <div class="flex items-start mb-3">
+                    <div class="bg-primary p-2 rounded-lg mr-3 text-white">
+                      <i class="fa-solid fa-bullseye"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800">Our Mission</h3>
+                  </div>
+                  <p class="text-gray-700">
+                    {{ club.mission_and_vision|default:"To create a platform where students can explore, innovate, and transform ideas into technological solutions that benefit society." }}
+                  </p>
+                </div>
+                
+                <!-- Vision -->
+                <div class="bg-blue-50 p-4 rounded-lg">
+                  <div class="flex items-start mb-3">
+                    <div class="bg-primary p-2 rounded-lg mr-3 text-white">
+                      <i class="fa-solid fa-eye"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800">Our Vision</h3>
+                  </div>
+                  <p class="text-gray-700">
+                    {{ club.mission_and_vision|default:"To be the leading student-run tech innovation hub recognized for excellence in technological advancement and community impact." }}
+                  </p>
+                </div>
+                
+                <!-- Achievements -->
+                <div class="bg-amber-50 p-4 rounded-lg">
+                  <div class="flex items-start mb-3">
+                    <div class="bg-amber-500 p-2 rounded-lg mr-3 text-white">
+                      <i class="fa-solid fa-trophy"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800">Achievements</h3>
+                  </div>
+                  <p class="text-gray-700">
+                    Winners of the National Tech Challenge 2022, 3 published research papers, 15+ successful projects deployed.
+                  </p>
+                </div>
+                
+                <!-- Activities -->
+                <div class="bg-amber-50 p-4 rounded-lg">
+                  <div class="flex items-start mb-3">
+                    <div class="bg-amber-500 p-2 rounded-lg mr-3 text-white">
+                      <i class="fa-solid fa-calendar-check"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800">Activities</h3>
+                  </div>
+                  <p class="text-gray-700">
+                    Weekly workshops, hackathons, tech talks with industry leaders, project development sessions, and community outreach.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Mission & Vision Section -->
+        <div class="card bg-base-100 shadow rounded-xl overflow-hidden">
+          <div class="card-body">
+            <h2 class="card-title text-2xl font-bold flex items-center mb-4">
+              <i class="fa-solid fa-rocket text-secondary mr-2"></i>
+              Mission & Vision
+            </h2>
+            
+            <div class="prose max-w-none">
+              <div class="bg-base-200 p-4 rounded-lg mb-4">
+                <h3 class="text-lg font-bold text-gray-800 mb-2">Our Mission</h3>
+                <p class="text-gray-700">
+                  To create a platform where students can explore, innovate, and transform ideas into technological solutions that benefit society.
+                </p>
+              </div>
+              
+              <div class="bg-base-200 p-4 rounded-lg">
+                <h3 class="text-lg font-bold text-gray-800 mb-2">Our Vision</h3>
+                <p class="text-gray-700">
+                  To be the leading student-run tech innovation hub recognized for excellence in technological advancement and community impact.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Right Column -->
+      <div class="lg:w-1/3 space-y-6">
+        <!-- Club Leaders -->
+        <div class="card bg-base-100 shadow rounded-xl overflow-hidden">
+          <div class="card-body">
+            <h2 class="card-title text-2xl font-bold flex items-center mb-4">
+              <i class="fa-solid fa-crown text-amber-500 mr-2"></i>
+              Club Leaders
+            </h2>
+            
+            <div class="space-y-4">
+              {% for member in club.members.all|slice:":3" %}
+              <div class="flex items-center gap-4 p-3 bg-base-200 rounded-lg hover:bg-base-300 transition-all">
+                <div class="avatar">
+                  <div class="w-14 h-14 rounded-full bg-gradient-to-r from-blue-400 to-indigo-500 text-white flex items-center justify-center font-bold">
+                    {{ member.name|slice:":2"|upper }}
+                  </div>
+                </div>
+                <div>
+                  <h3 class="text-lg font-bold">{{ member.name }}</h3>
+                  <div class="flex items-center">
+                    <span class="badge badge-primary">{{ member.role|title }}</span>
+                    <span class="text-gray-600 ml-2 text-sm">{{ member.department_year }}</span>
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+            
+            <div class="mt-4">
+              <a href="#" class="btn btn-outline btn-warning w-full">
+                View All Members
+                <i class="fa-solid fa-arrow-right ml-2"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Upcoming Events -->
+        <div class="card bg-base-100 shadow rounded-xl overflow-hidden">
+          <div class="card-body">
+            <h2 class="card-title text-2xl font-bold flex items-center mb-4">
+              <i class="fa-solid fa-calendar-days text-info mr-2"></i>
+              Upcoming Events
+            </h2>
+            
+            <div class="space-y-4">
+              <div class="bg-base-200 p-4 rounded-lg hover:bg-base-300 transition-all">
+                <div class="flex gap-4">
+                  <div class="flex flex-col items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg">
+                    <span class="text-xl font-bold">24</span>
+                    <span class="text-xs">JUN</span>
+                  </div>
+                  <div>
+                    <h3 class="font-bold">AI & Machine Learning Workshop</h3>
+                    <p class="text-gray-600 text-sm mt-1">Learn practical applications of ML algorithms with hands-on projects</p>
+                    <div class="flex items-center text-gray-500 text-sm mt-2">
+                      <i class="far fa-clock mr-1"></i> 3:00 PM - 5:00 PM
+                      <i class="fas fa-map-marker-alt ml-3 mr-1"></i> Tech Building Room 304
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="bg-base-200 p-4 rounded-lg hover:bg-base-300 transition-all">
+                <div class="flex gap-4">
+                  <div class="flex flex-col items-center justify-center w-16 h-16 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-lg">
+                    <span class="text-xl font-bold">30</span>
+                    <span class="text-xs">JUN</span>
+                  </div>
+                  <div>
+                    <h3 class="font-bold">Annual Hackathon 2023</h3>
+                    <p class="text-gray-600 text-sm mt-1">36-hour coding marathon to solve real-world problems</p>
+                    <div class="flex items-center text-gray-500 text-sm mt-2">
+                      <i class="far fa-clock mr-1"></i> 9:00 AM - 6:00 PM
+                      <i class="fas fa-map-marker-alt ml-3 mr-1"></i> Innovation Center
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="mt-4">
+              <a href="#" class="btn btn-outline btn-info w-full">
+                View All Events
+                <i class="fa-solid fa-arrow-right ml-2"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Club Advisors -->
+        <div class="card bg-base-100 shadow rounded-xl overflow-hidden">
+          <div class="card-body">
+            <h2 class="card-title text-2xl font-bold flex items-center mb-4">
+              <i class="fa-solid fa-user-graduate text-secondary mr-2"></i>
+              Club Advisors
+            </h2>
+            
+            <div class="space-y-4">
+              {% for advisor in club.advisors.all|slice:":2" %}
+              <div class="flex items-center gap-4 p-3 bg-base-200 rounded-lg hover:bg-base-300 transition-all">
+                <div class="avatar">
+                  <div class="w-14 h-14 rounded-full bg-gradient-to-r from-gray-600 to-gray-800 text-white flex items-center justify-center">
+                    <i class="fa-solid fa-user text-xl"></i>
+                  </div>
+                </div>
+                <div>
+                  <h3 class="text-lg font-bold">{{ advisor.name }}</h3>
+                  <p class="text-gray-600 text-sm">{{ advisor.contact }}</p>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+        
+        <!-- Social Media -->
+        <div class="card bg-base-100 shadow rounded-xl overflow-hidden">
+          <div class="card-body">
+            <h2 class="card-title text-2xl font-bold flex items-center mb-4">
+              <i class="fa-solid fa-hashtag text-primary mr-2"></i>
+              Connect With Us
+            </h2>
+            
+            <p class="text-gray-600 mb-4">Follow us on social media for updates and announcements</p>
+            
+            <div class="grid grid-cols-3 gap-3">
+              {% if club.social_links.facebook %}
+              <a href="{{ club.social_links.facebook }}" class="social-btn bg-blue-600 hover:bg-blue-700 text-white rounded-lg p-3 flex flex-col items-center justify-center transition-all duration-300">
+                <i class="fa-brands fa-facebook-f text-2xl mb-1"></i>
+                <span class="text-sm">Facebook</span>
+              </a>
+              {% endif %}
+              <a href="#" class="social-btn bg-pink-600 hover:bg-pink-700 text-white rounded-lg p-3 flex flex-col items-center justify-center transition-all duration-300">
+                <i class="fa-brands fa-instagram text-2xl mb-1"></i>
+                <span class="text-sm">Instagram</span>
+              </a>
+              
+              <a href="#" class="social-btn bg-blue-400 hover:bg-blue-500 text-white rounded-lg p-3 flex flex-col items-center justify-center transition-all duration-300">
+                <i class="fa-brands fa-twitter text-2xl mb-1"></i>
+                <span class="text-sm">Twitter</span>
+              </a>
+              
+              <a href="#" class="social-btn bg-blue-700 hover:bg-blue-800 text-white rounded-lg p-3 flex flex-col items-center justify-center transition-all duration-300">
+                <i class="fa-brands fa-linkedin-in text-2xl mb-1"></i>
+                <span class="text-sm">LinkedIn</span>
+              </a>
+              
+              <a href="#" class="social-btn bg-red-600 hover:bg-red-700 text-white rounded-lg p-3 flex flex-col items-center justify-center transition-all duration-300">
+                <i class="fa-brands fa-youtube text-2xl mb-1"></i>
+                <span class="text-sm">YouTube</span>
+              </a>
+              
+              <a href="#" class="social-btn bg-gray-800 hover:bg-gray-900 text-white rounded-lg p-3 flex flex-col items-center justify-center transition-all duration-300">
+                <i class="fa-solid fa-globe text-2xl mb-1"></i>
+                <span class="text-sm">Website</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
+</main>
+
+<style>
+  .stat-card {
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .stat-card:hover {
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
+  }
+  
+  .social-btn {
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .social-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .animate-fade-in {
+    animation: fadeIn 0.6s ease forwards;
+    opacity: 0;
+  }
+  
+  .card {
+    animation: fadeIn 0.6s ease forwards;
+    opacity: 0;
+  }
+  
+  .card:nth-child(1) { animation-delay: 0.1s; }
+  .card:nth-child(2) { animation-delay: 0.2s; }
+  .card:nth-child(3) { animation-delay: 0.3s; }
+  .stat-card:nth-child(1) { animation-delay: 0.1s; }
+  .stat-card:nth-child(2) { animation-delay: 0.2s; }
+  .stat-card:nth-child(3) { animation-delay: 0.3s; }
+  .stat-card:nth-child(4) { animation-delay: 0.4s; }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Add animation classes
+    document.querySelectorAll('.card, .stat-card').forEach(card => {
+      card.classList.add('animate-fade-in');
+    });
+  });
+</script>
 {% endblock %}

@@ -34,62 +34,58 @@ def club_profile_view(request):
             })
 
     return redirect('clubs:club_register')
-
-
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
-from .models import ClubRegistration
-from .forms import ClubRegistrationForm  # We'll create this form next
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import make_password
-from django.shortcuts import get_object_or_404, render, redirect
-from .models import ClubRegistration
-from .forms import ClubRegistrationForm
-
-from django.contrib.auth.hashers import make_password
-
-from django.contrib.auth.hashers import make_password
-
-from django.shortcuts import get_object_or_404, redirect, render
-from django.contrib.auth.hashers import make_password
-from .forms import ClubForm, ClubRegistrationForm
-
-
-from django.shortcuts import get_object_or_404, redirect, render
-from django.contrib.auth.hashers import make_password
-from .models import Club, ClubRegistration
-from .forms import ClubForm, ClubRegistrationForm  # Make sure these forms exist and are imported
-from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth.hashers import make_password
+from django.contrib.auth.models import User
 from .models import Club, ClubRegistration
 from .forms import ClubForm, ClubRegistrationForm
 
+@login_required
 def edit_club(request, club_id):
-    # 1. Make sure this ID refers to an actual approved club
     club = get_object_or_404(Club, id=club_id)
-
-    # 2. Get matching ClubRegistration row (if any)
     registration = ClubRegistration.objects.filter(approved_club=club).first()
 
-    # 3. POST handling
     if request.method == 'POST':
         form_club = ClubForm(request.POST, request.FILES, instance=club)
         form_registration = ClubRegistrationForm(request.POST, instance=registration)
 
         if form_club.is_valid() and form_registration.is_valid():
             form_club.save()
-
-            # Save club registration but handle password hashing
             reg_obj = form_registration.save(commit=False)
+
+            # Handle password update
             new_password = form_registration.cleaned_data.get('club_password')
             if new_password:
                 reg_obj.club_password = make_password(new_password)
-            reg_obj.approved_club = club  # Ensure correct FK
+
+            # Handle username change and prevent duplicates
+            old_username = request.user.username
+            new_username = form_registration.cleaned_data.get('club_username')
+
+            if old_username != new_username:
+                if User.objects.filter(username=new_username).exclude(pk=request.user.pk).exists():
+                    form_registration.add_error('club_username', "This username is already taken.")
+                    context = {
+                        'form_club': form_club,
+                        'form_registration': form_registration,
+                        'club': club,
+                        'registration': registration,
+                    }
+                    return render(request, 'clubs/edit_club.html', context)
+
+                # Update the request.user.username
+                request.user.username = new_username
+                request.user.save()
+
+            reg_obj.approved_club = club
             reg_obj.save()
 
-            return redirect('clubs:club_profile_view')  # ✅ Adjust to your actual URL name
-
-    # 4. GET handling
+            messages.success(request, "Club information updated successfully.")
+            return redirect('clubs:club_profile_view')
+        else:
+            messages.error(request, "Please correct the errors below.")
     else:
         form_club = ClubForm(instance=club)
         form_registration = ClubRegistrationForm(instance=registration)
@@ -97,9 +93,10 @@ def edit_club(request, club_id):
     context = {
         'form_club': form_club,
         'form_registration': form_registration,
+        'club': club,
+        'registration': registration,
     }
     return render(request, 'clubs/edit_club.html', context)
-
 
 # ========== Public Views ==========
 

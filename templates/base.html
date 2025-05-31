@@ -88,13 +88,17 @@
               
               <!-- User Dropdown -->
               <div class="dropdown dropdown-end">
-                <div class="tooltip tooltip-bottom" data-tip="{% firstof club.club_name 'Admin' %}">
+                <div class="tooltip tooltip-bottom" data-tip="{% if club %}{{ club.club_name }}{% else %}Admin{% endif %}">
                   <div tabindex="0" class="btn btn-ghost btn-circle avatar">
                     <div class="w-10 rounded-full bg-gray-200 border-2 border-dashed">
                       {% if club %}
-                        <span class="text-xl font-bold text-gray-600 flex items-center justify-center h-full">
-                          {{ club.club_name|first|upper }}
-                        </span>
+                        {% if club.logo %}
+                          <img src="{{ club.logo.url }}" alt="{{ club.club_name }}" class="object-cover w-full h-full">
+                        {% else %}
+                          <span class="text-xl font-bold text-gray-600 flex items-center justify-center h-full">
+                            {{ club.club_name|first|upper }}
+                          </span>
+                        {% endif %}
                       {% else %}
                         <i class="fa-solid fa-user-gear text-gray-600 text-xl flex items-center justify-center h-full"></i>
                       {% endif %}
