@@ -22,10 +22,64 @@ class Club(models.Model):
 
 class ClubMember(models.Model):
     ROLE_CHOICES = (
+        # Core Executive Team
         ('president', 'President'),
+        ('vice_president', 'Vice President'),
         ('secretary', 'Secretary'),
+        ('joint_secretary', 'Joint Secretary'),
+        ('assistant_secretary', 'Assistant Secretary'),
         ('treasurer', 'Treasurer'),
-        ('member', 'Member'),
+        ('financial_controller', 'Financial Controller'),
+
+        # Operational Roles
+        ('event_manager', 'Event Manager'),
+        ('event_coordinator', 'Event Coordinator'),
+        ('logistics_head', 'Logistics Head'),
+        ('operations_manager', 'Operations Manager'),
+
+        # Communications
+        ('pr_officer', 'Public Relations Officer'),
+        ('communications_officer', 'Communications Officer'),
+        ('media_coordinator', 'Media Coordinator'),
+        ('social_media_manager', 'Social Media Manager'),
+
+        # Creative & Technical
+        ('creative_director', 'Creative Director'),
+        ('design_head', 'Design Head'),
+        ('technical_head', 'Technical Head'),
+        ('content_creator', 'Content Creator'),
+        ('graphic_designer', 'Graphic Designer'),
+        ('webmaster', 'Webmaster'),
+        ('photographer', 'Photographer'),
+        ('videographer', 'Videographer'),
+
+        # Membership & Outreach
+        ('membership_coordinator', 'Membership Coordinator'),
+        ('outreach_coordinator', 'Outreach Coordinator'),
+        ('partnership_coordinator', 'Partnership Coordinator'),
+        ('fundraising_officer', 'Fundraising Officer'),
+        ('alumni_relations', 'Alumni Relations Officer'),
+
+        # Specialized Departments
+        ('cultural_secretary', 'Cultural Secretary'),
+        ('sports_secretary', 'Sports Secretary'),
+        ('academic_head', 'Academic Head'),
+        ('research_head', 'Research Head'),
+        ('training_head', 'Training Head'),
+        ('welfare_officer', 'Welfare Officer'),
+        ('equity_officer', 'Equity Officer'),
+
+        # Advisory & Support
+        ('faculty_advisor', 'Faculty Advisor'),
+        ('mentor', 'Mentor'),
+        ('legal_advisor', 'Legal Advisor'),
+        ('auditor', 'Auditor'),
+
+        # General Roles
+        ('project_manager', 'Project Manager'),
+        ('volunteer_coordinator', 'Volunteer Coordinator'),
+        ('general_member', 'General Member'),
+        ('executive_member', 'Executive Member'),
     )
     club = models.ForeignKey(Club, on_delete=models.CASCADE, related_name='members')
     name = models.CharField(max_length=255)
@@ -33,7 +87,7 @@ class ClubMember(models.Model):
     email = models.EmailField()
     phone = models.CharField(max_length=20)
     department_year = models.CharField(max_length=255)
-    role = models.CharField(max_length=20, choices=ROLE_CHOICES)
+    role = models.CharField(max_length=30, choices=ROLE_CHOICES)
 
     def __str__(self):
         return f"{self.name} - {self.role}"

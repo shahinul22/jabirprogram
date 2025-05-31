@@ -34,6 +34,30 @@ def club_profile_view(request):
             })
 
     return redirect('clubs:club_register')
+
+
+# clubs/views.py
+def club_profile_tab_view(request, tab):
+    # Get the club registration for the current user
+    try:
+        club_reg = ClubRegistration.objects.get(club_username=request.user.username)
+    except ClubRegistration.DoesNotExist:
+        messages.error(request, "Club registration not found.")
+        return redirect('clubs:club_profile')
+    
+    if not club_reg.is_approved or not club_reg.approved_club:
+        messages.warning(request, "Your club is not approved yet.")
+        return redirect('clubs:club_profile')
+    
+    club = club_reg.approved_club
+    context = {
+        'club': club,
+        'active_tab': tab,
+        'status': 'approved',
+        'club_registration': club_reg
+    }
+    
+    return render(request, 'clubs/profile.html', context)
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -164,9 +188,43 @@ def club_login(request):
 
     return render(request, "clubs/login.html")
 
+# clubs/views.py
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from .models import Club, ClubMember
 
-from django.contrib.auth import logout
-from django.shortcuts import redirect
+@login_required
+def club_members_view(request):
+    # Get the club registration for the current user
+    try:
+        club_reg = ClubRegistration.objects.get(club_username=request.user.username)
+    except ClubRegistration.DoesNotExist:
+        messages.error(request, "Club registration not found.")
+        return redirect('clubs:club_profile_view')
+    
+    # Redirect if club not approved
+    if not club_reg.is_approved or not club_reg.approved_club:
+        messages.warning(request, "Your club is not approved yet.")
+        return redirect('clubs:club_profile_view')
+    
+    club = club_reg.approved_club
+    members = ClubMember.objects.filter(club=club)
+    
+    # Pagination
+    page = request.GET.get('page', 1)
+    paginator = Paginator(members, 10)  # Show 10 members per page
+    
+    try:
+        members_page = paginator.page(page)
+    except PageNotAnInteger:
+        members_page = paginator.page(1)
+    except EmptyPage:
+        members_page = paginator.page(paginator.num_pages)
+
+    context = {
+        'club': club,
+        'members_page': members_page,
+    }
+    return render(request, 'clubs/members.html', context)
 
 
 

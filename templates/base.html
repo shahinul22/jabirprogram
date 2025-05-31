@@ -109,7 +109,7 @@
                 <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
                   {% if club %}
                     <li class="menu-title p-2">Club: {{ club.club_name }}</li>
-                    <li><a href="{% url 'clubs:club_profile_view' %}">
+                    <li><a href="{% url 'clubs:club_profile_about' %}">
                       <i class="fa-solid fa-user mr-2"></i> Profile
                     </a></li>
                     <li><a href="{% url 'clubs:club_logout' %}">

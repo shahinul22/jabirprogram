@@ -2,7 +2,7 @@ from django.shortcuts import render
 from clubs.models import ClubRegistration
 from django.contrib.auth.decorators import login_required
 
-@login_required
+
 def home(request):
     user = request.user
     club = None
