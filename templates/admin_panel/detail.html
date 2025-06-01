@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+
 {% block title %}
   {{ club.club_name }} Details
 {% endblock %}
@@ -7,12 +8,8 @@
   <div class="container mx-auto p-6 bg-white shadow-md rounded-lg">
     <h1 class="text-3xl font-bold text-blue-800 mb-4">{{ club.club_name }}</h1>
 
-    <p>
-      <strong>Category:</strong> {{ club.club_category }}
-    </p>
-    <p>
-      <strong>Established:</strong> {{ club.date_established }}
-    </p>
+    <p><strong>Category:</strong> {{ club.club_category }}</p>
+    <p><strong>Established:</strong> {{ club.date_established }}</p>
 
     <h2 class="text-2xl mt-6 font-semibold text-gray-800">President</h2>
     <ul class="list-disc pl-6">
@@ -20,7 +17,7 @@
       <li>ID: {{ club.president_student_id }}</li>
       <li>Email: {{ club.president_email }}</li>
       <li>Phone: {{ club.president_phone }}</li>
-      <li>Department & Year: {{ club.president_department_year }}</li>
+      <li>Department & Session: {{ club.president_department }}, {{ club.president_session }}</li>
     </ul>
 
     <h2 class="text-2xl mt-6 font-semibold text-gray-800">Secretary</h2>
@@ -29,58 +26,31 @@
       <li>ID: {{ club.secretary_student_id }}</li>
       <li>Email: {{ club.secretary_email }}</li>
       <li>Phone: {{ club.secretary_phone }}</li>
-      <li>Department & Year: {{ club.secretary_department_year }}</li>
+      <li>Department & Session: {{ club.secretary_department }}, {{ club.secretary_session }}</li>
     </ul>
 
-    {% if club.treasurer_name %}
-      <h2 class="text-2xl mt-6 font-semibold text-gray-800">Treasurer</h2>
-      <ul class="list-disc pl-6">
-        <li>Name: {{ club.treasurer_name }}</li>
-        <li>ID: {{ club.treasurer_student_id }}</li>
-        <li>Email: {{ club.treasurer_email }}</li>
-        <li>Phone: {{ club.treasurer_phone }}</li>
-        <li>Department & Year: {{ club.treasurer_department_year }}</li>
-      </ul>
-    {% endif %}
+    <h2 class="text-2xl mt-6 font-semibold text-gray-800">Organizing Secretary</h2>
+    <ul class="list-disc pl-6">
+      <li>Name: {{ club.organizing_secretary_name }}</li>
+      <li>ID: {{ club.organizing_secretary_student_id }}</li>
+      <li>Email: {{ club.organizing_secretary_email }}</li>
+      <li>Phone: {{ club.organizing_secretary_phone }}</li>
+      <li>Department & Session: {{ club.organizing_secretary_department }}, {{ club.organizing_secretary_session }}</li>
+    </ul>
 
     <h2 class="text-2xl mt-6 font-semibold text-gray-800">Details</h2>
-    <p>
-      <strong>Advisor:</strong> {{ club.advisor_name }} ({{ club.advisor_contact }})
-    </p>
-    <p>
-      <strong>Mission & Vision:</strong> {{ club.mission_and_vision }}
-    </p>
-    <p>
-      <strong>Membership Rules:</strong> {{ club.membership_rules }}
-    </p>
+    <p><strong>Advisor:</strong> {{ club.advisor_name }} ({{ club.advisor_contact }})</p>
+    <p><strong>Mission & Vision:</strong> {{ club.mission_and_vision }}</p>
+    <p><strong>Membership Rules:</strong> {{ club.membership_rules }}</p>
+    <p><strong>Other Executive Members:</strong> {{ club.other_executive_members }}</p>
 
     <h2 class="text-2xl mt-6 font-semibold text-gray-800">Social Links</h2>
     <ul class="list-disc pl-6 text-blue-600">
-      {% if club.facebook_link %}
-        <li>
-          <a href="{{ club.facebook_link }}" target="_blank" class="hover:underline">Facebook</a>
-        </li>
-      {% endif %}
-      {% if club.instagram_link %}
-        <li>
-          <a href="{{ club.instagram_link }}" target="_blank" class="hover:underline">Instagram</a>
-        </li>
-      {% endif %}
-      {% if club.linkedin_link %}
-        <li>
-          <a href="{{ club.linkedin_link }}" target="_blank" class="hover:underline">LinkedIn</a>
-        </li>
-      {% endif %}
-      {% if club.youtube_link %}
-        <li>
-          <a href="{{ club.youtube_link }}" target="_blank" class="hover:underline">YouTube</a>
-        </li>
-      {% endif %}
-      {% if club.website_link %}
-        <li>
-          <a href="{{ club.website_link }}" target="_blank" class="hover:underline">Website</a>
-        </li>
-      {% endif %}
+      {% if club.facebook_link %}<li><a href="{{ club.facebook_link }}" target="_blank" class="hover:underline">Facebook</a></li>{% endif %}
+      {% if club.instagram_link %}<li><a href="{{ club.instagram_link }}" target="_blank" class="hover:underline">Instagram</a></li>{% endif %}
+      {% if club.linkedin_link %}<li><a href="{{ club.linkedin_link }}" target="_blank" class="hover:underline">LinkedIn</a></li>{% endif %}
+      {% if club.youtube_link %}<li><a href="{{ club.youtube_link }}" target="_blank" class="hover:underline">YouTube</a></li>{% endif %}
+      {% if club.website_link %}<li><a href="{{ club.website_link }}" target="_blank" class="hover:underline">Website</a></li>{% endif %}
     </ul>
   </div>
 
@@ -93,7 +63,22 @@
           <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Approve Club</button>
         </form>
       {% endif %}
-      <a href="{% url 'admin_panel:confirm_delete' club.id %}" class="btn btn-ghost normal-case text-2xl font-bold">Delete</a>
+
+      {% if show_delete_form %}
+        <form method="post" class="mt-4">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="confirm_delete" />
+          <label for="reason" class="block font-semibold mb-1">Reason for deletion:</label>
+          <textarea id="reason" name="reason" rows="3" class="w-full p-2 border rounded" required></textarea>
+          <button type="submit" class="mt-2 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Confirm Delete</button>
+        </form>
+      {% else %}
+        <form method="post" class="mt-4">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="initiate_delete" />
+          <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Delete Club</button>
+        </form>
+      {% endif %}
     </div>
   {% endif %}
 {% endblock %}

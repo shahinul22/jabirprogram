@@ -1,0 +1,59 @@
+
+
+{% extends "base.html" %}
+{% load form_filters %}
+{% block content %}
+<div class="max-w-2xl mx-auto bg-white p-6 rounded-lg shadow mt-10">
+  <h2 class="text-2xl font-bold mb-4 text-center">Add New Member to {{ club.name }}</h2>
+
+  <form method="POST" enctype="multipart/form-data" class="space-y-4">
+    {% csrf_token %}
+
+    {{ form.non_field_errors }}
+    
+    <div>
+      {{ form.name.label_tag }}  
+      {{ form.name|add_class:"input input-bordered w-full" }}
+    </div>
+
+    <div>
+      {{ form.student_id.label_tag }}
+      {{ form.student_id|add_class:"input input-bordered w-full" }}
+    </div>
+
+    <div>
+      {{ form.email.label_tag }}
+      {{ form.email|add_class:"input input-bordered w-full" }}
+    </div>
+
+    <div>
+      {{ form.phone.label_tag }}
+      {{ form.phone|add_class:"input input-bordered w-full" }}
+    </div>
+
+    <div>
+      {{ form.session.label_tag }}
+      {{ form.session|add_class:"input input-bordered w-full" }}
+    </div>
+
+    <div>
+      {{ form.department.label_tag }}
+      {{ form.department|add_class:"input input-bordered w-full" }}
+    </div>
+
+    <div>
+      {{ form.role.label_tag }}
+      {{ form.role|add_class:"select select-bordered w-full" }}
+    </div>
+
+    <div>
+      {{ form.photo.label_tag }}
+      {{ form.photo|add_class:"file-input file-input-bordered w-full" }}
+    </div>
+    
+
+
+    <button type="submit" class="btn btn-primary w-full">Add Member</button>
+  </form>
+</div>
+{% endblock %}

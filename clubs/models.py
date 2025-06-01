@@ -1,10 +1,10 @@
 from django.db import models
-
+from django.contrib.auth.models import User
+from django.utils import timezone
 
 # === Approved Clubs ===
-
 class Club(models.Model):
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, unique=True)
     category = models.CharField(max_length=255)
     date_established = models.DateField()
     constitution = models.TextField(blank=True)
@@ -12,12 +12,15 @@ class Club(models.Model):
     membership_rules = models.TextField(blank=True)
     description = models.TextField(blank=True)
     is_active = models.BooleanField(default=True)
-
+    
     logo = models.ImageField(upload_to='club_logos/', blank=True, null=True)
     cover_photo = models.ImageField(upload_to='club_covers/', blank=True, null=True)
 
     def __str__(self):
         return self.name
+
+
+
 
 
 class ClubMember(models.Model):
@@ -28,6 +31,7 @@ class ClubMember(models.Model):
         ('secretary', 'Secretary'),
         ('joint_secretary', 'Joint Secretary'),
         ('assistant_secretary', 'Assistant Secretary'),
+        ('organizing_secretary', 'Organizing Secretary'),    
         ('treasurer', 'Treasurer'),
         ('financial_controller', 'Financial Controller'),
 
@@ -81,22 +85,46 @@ class ClubMember(models.Model):
         ('general_member', 'General Member'),
         ('executive_member', 'Executive Member'),
     )
+    
     club = models.ForeignKey(Club, on_delete=models.CASCADE, related_name='members')
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     name = models.CharField(max_length=255)
-    student_id = models.CharField(max_length=50)
+    student_id = models.CharField(max_length=50, unique=True)
     email = models.EmailField()
     phone = models.CharField(max_length=20)
-    department_year = models.CharField(max_length=255)
+    session = models.CharField(max_length=20, blank=True, null=True)
+    department = models.CharField(max_length=255, default='Not Specified')
     role = models.CharField(max_length=30, choices=ROLE_CHOICES)
+    is_active = models.BooleanField(default=True)
+    joined_date = models.DateField(default=timezone.now)
+
+    # ✅ Leave date for inactive members
+    leave_date = models.DateField(blank=True, null=True)
+
+    # ✅ Photo field
+    photo = models.ImageField(upload_to='member_photos/', blank=True, null=True)
+
+    class Meta:
+        unique_together = ('club', 'student_id')
+
+    def save(self, *args, **kwargs):
+        if not self.is_active and self.leave_date is None:
+            self.leave_date = timezone.now().date()
+        elif self.is_active:
+            self.leave_date = None
+        super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.name} - {self.role}"
+        return f"{self.name} ({self.role} - {self.club.name})"
 
 
 class ClubAdvisor(models.Model):
     club = models.ForeignKey(Club, on_delete=models.CASCADE, related_name='advisors')
     name = models.CharField(max_length=255)
     contact = models.CharField(max_length=255)
+    email = models.EmailField(blank=True)
+    department = models.CharField(max_length=255, blank=True)
+    is_primary = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.name} (Advisor - {self.club.name})"
@@ -109,17 +137,24 @@ class ClubSocialLink(models.Model):
     linkedin = models.URLField(blank=True)
     youtube = models.URLField(blank=True)
     website = models.URLField(blank=True)
+    twitter = models.URLField(blank=True)
+    github = models.URLField(blank=True)
 
     def __str__(self):
         return f"Social links for {self.club.name}"
 
 
 # === Pending Registration ===
+from django.db import models
+from django.utils import timezone
+from django.db import IntegrityError
+from django.contrib.auth.hashers import make_password
+from django.contrib.auth.hashers import is_password_usable
 
 class ClubRegistration(models.Model):
     # Auth Info
     club_username = models.CharField(max_length=150, unique=True)
-    club_password = models.CharField(max_length=128)  # Hashed password should be handled properly
+    club_password = models.CharField(max_length=128)
 
     # Club Info
     club_name = models.CharField(max_length=255)
@@ -131,23 +166,26 @@ class ClubRegistration(models.Model):
     president_student_id = models.CharField(max_length=50)
     president_email = models.EmailField()
     president_phone = models.CharField(max_length=20)
-    president_department_year = models.CharField(max_length=255)
+    president_session = models.CharField(max_length=20)
+    president_department = models.CharField(max_length=255)
 
     # Secretary Info
     secretary_name = models.CharField(max_length=255)
     secretary_student_id = models.CharField(max_length=50)
     secretary_email = models.EmailField()
     secretary_phone = models.CharField(max_length=20)
-    secretary_department_year = models.CharField(max_length=255)
+    secretary_session = models.CharField(max_length=20)
+    secretary_department = models.CharField(max_length=255)
 
-    # Treasurer Info (optional)
-    treasurer_name = models.CharField(max_length=255, blank=True)
-    treasurer_student_id = models.CharField(max_length=50, blank=True)
-    treasurer_email = models.EmailField(blank=True)
-    treasurer_phone = models.CharField(max_length=20, blank=True)
-    treasurer_department_year = models.CharField(max_length=255, blank=True)
+    # Organizing Secretary
+    organizing_secretary_name = models.CharField(max_length=255)
+    organizing_secretary_student_id = models.CharField(max_length=50)
+    organizing_secretary_email = models.EmailField()
+    organizing_secretary_phone = models.CharField(max_length=20)
+    organizing_secretary_session = models.CharField(max_length=20)
+    organizing_secretary_department = models.CharField(max_length=255)
 
-    # Others
+    # Other Details
     other_executive_members = models.TextField(blank=True)
     club_constitution = models.TextField(blank=True)
     mission_and_vision = models.TextField(blank=True)
@@ -156,6 +194,8 @@ class ClubRegistration(models.Model):
     # Advisor
     advisor_name = models.CharField(max_length=255, blank=True)
     advisor_contact = models.CharField(max_length=255, blank=True)
+    advisor_email = models.EmailField(blank=True, default='')
+    advisor_department = models.CharField(max_length=255, blank=True, default='')
 
     # Social Media
     facebook_link = models.URLField(blank=True)
@@ -164,17 +204,32 @@ class ClubRegistration(models.Model):
     youtube_link = models.URLField(blank=True)
     website_link = models.URLField(blank=True)
 
-    # Approval Status
+    # Approval Info
     is_approved = models.BooleanField(default=False)
     approved_club = models.OneToOneField('Club', null=True, blank=True, on_delete=models.SET_NULL)
 
+    # Timestamps
+    submitted_at = models.DateTimeField(auto_now_add=True)
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.club_password.startswith('pbkdf2_'):
+            self.club_password = make_password(self.club_password)
+        super().save(*args, **kwargs)
+
     def __str__(self):
-        return f"{self.club_name} (Pending)"
+        return f"{self.club_name} ({'Approved' if self.is_approved else 'Pending'})"
+
+    @property
+    def status(self):
+        return "Approved" if self.is_approved else "Pending"
 
     def approve(self):
-        """Approve the registration and create the linked Club and related data."""
+        from .models import Club, ClubMember, ClubAdvisor, ClubSocialLink
 
-        # Create the Club instance
+        if Club.objects.filter(name=self.club_name).exists():
+            raise IntegrityError(f"Club '{self.club_name}' already exists!")
+
         club = Club.objects.create(
             name=self.club_name,
             category=self.club_category,
@@ -183,57 +238,54 @@ class ClubRegistration(models.Model):
             mission_and_vision=self.mission_and_vision,
             membership_rules=self.membership_rules,
             description=self.other_executive_members,
-            is_active=True,
-            logo=None,
-            cover_photo=None,
+            is_active=True
         )
 
-        # Link this ClubRegistration to the new Club
-        self.approved_club = club
+        executive_members = [
+            {
+                'name': self.president_name,
+                'student_id': self.president_student_id,
+                'email': self.president_email,
+                'phone': self.president_phone,
+                'session': self.president_session,
+                'department': self.president_department,
+                'role': 'president'
+            },
+            {
+                'name': self.secretary_name,
+                'student_id': self.secretary_student_id,
+                'email': self.secretary_email,
+                'phone': self.secretary_phone,
+                'session': self.secretary_session,
+                'department': self.secretary_department,
+                'role': 'secretary'
+            },
+            {
+                'name': self.organizing_secretary_name,
+                'student_id': self.organizing_secretary_student_id,
+                'email': self.organizing_secretary_email,
+                'phone': self.organizing_secretary_phone,
+                'session': self.organizing_secretary_session,
+                'department': self.organizing_secretary_department,
+                'role': 'organizing_secretary'
+            }
+        ]
 
-        # Create members: president and secretary
-        ClubMember.objects.bulk_create([
-            ClubMember(
-                club=club,
-                name=self.president_name,
-                student_id=self.president_student_id,
-                email=self.president_email,
-                phone=self.president_phone,
-                department_year=self.president_department_year,
-                role='president'
-            ),
-            ClubMember(
-                club=club,
-                name=self.secretary_name,
-                student_id=self.secretary_student_id,
-                email=self.secretary_email,
-                phone=self.secretary_phone,
-                department_year=self.secretary_department_year,
-                role='secretary'
-            ),
-        ])
+        for member in executive_members:
+            if member['name'] and member['student_id']:
+                exists = ClubMember.objects.filter(club=club, student_id=member['student_id']).exists()
+                if not exists:
+                    ClubMember.objects.create(club=club, **member)
 
-        # Optional treasurer
-        if self.treasurer_name:
-            ClubMember.objects.create(
-                club=club,
-                name=self.treasurer_name,
-                student_id=self.treasurer_student_id,
-                email=self.treasurer_email,
-                phone=self.treasurer_phone,
-                department_year=self.treasurer_department_year,
-                role='treasurer'
-            )
-
-        # Optional advisor
         if self.advisor_name:
             ClubAdvisor.objects.create(
                 club=club,
                 name=self.advisor_name,
-                contact=self.advisor_contact
+                contact=self.advisor_contact,
+                email=self.advisor_email,
+                department=self.advisor_department
             )
 
-        # Social media links
         ClubSocialLink.objects.create(
             club=club,
             facebook=self.facebook_link,
@@ -243,8 +295,7 @@ class ClubRegistration(models.Model):
             website=self.website_link
         )
 
-        # Mark registration as approved
         self.is_approved = True
+        self.approved_club = club
+        self.reviewed_at = timezone.now()
         self.save()
-
-        return club

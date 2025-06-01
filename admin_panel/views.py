@@ -29,6 +29,10 @@ def admin_login_view(request):
     return render(request, 'admin_panel/login.html', {'form': form})
 
 
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.shortcuts import render
+from clubs.models import ClubRegistration
+
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
 def admin_profile_view(request):
@@ -50,7 +54,24 @@ from django.core.mail import send_mail
 # from .models import ClubRegistration
 
 
-@csrf_exempt
+from django.shortcuts import render, get_object_or_404, redirect
+from django.views.decorators.csrf import csrf_exempt
+from django.core.mail import send_mail
+from django.contrib import messages
+from django.conf import settings
+from django.db import IntegrityError
+# from .models import ClubRegistration 
+
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib import messages
+from django.views.decorators.csrf import csrf_protect
+from django.core.mail import send_mail
+from django.conf import settings
+from django.db import IntegrityError
+from django.utils import timezone
+# from .models import ClubRegistration
+
+@csrf_protect  # Keep CSRF protection
 def club_detail(request, pk):
     club = get_object_or_404(ClubRegistration, pk=pk)
     show_delete_form = False
@@ -59,10 +80,15 @@ def club_detail(request, pk):
         action = request.POST.get("action")
 
         if action == "approve":
-            club.approve()  # ✅ This creates and links the Club instance
+            if club.is_approved:
+                messages.warning(request, f"Club '{club.club_name}' has already been approved.")
+                return redirect(request.path)
 
-            subject = f"Your Club '{club.club_name}' Has Been Approved"
-            message = f"""
+            try:
+                club.approve()
+
+                subject = f"Your Club '{club.club_name}' Has Been Approved"
+                message = f"""
 Dear {club.president_name} and {club.secretary_name},
 
 We are pleased to inform you that your club registration for "{club.club_name}" has been approved by the admin.
@@ -72,36 +98,46 @@ You can now log in using your username and password to manage your club activiti
 Best regards,  
 JU Club Management Team
 """
-            recipient_list = list(filter(None, [club.president_email, club.secretary_email]))
-            if recipient_list:
-                send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, recipient_list, fail_silently=True)
+                recipient_list = list(filter(None, [club.president_email, club.secretary_email]))
+                if recipient_list:
+                    send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, recipient_list, fail_silently=True)
 
-            messages.success(request, f"{club.club_name} has been approved and email sent.")
-            return redirect("admin_panel:admin_profile_view")
+                messages.success(request, f"{club.club_name} has been approved and notification email sent.")
+                return redirect("admin_panel:admin_profile_view")
+
+            except IntegrityError as e:
+                messages.error(request, f"Approval failed: {str(e)}")
+                return redirect(request.path)
 
         elif action == "initiate_delete":
             show_delete_form = True
 
         elif action == "confirm_delete":
-            reason = request.POST.get("reason")
+            reason = request.POST.get("reason", "").strip()
             email = club.president_email or club.secretary_email
 
-            if email and reason:
-                send_mail(
-                    subject=f"Your club '{club.club_name}' registration was deleted",
-                    message=f"Dear Club,\n\nYour club registration has been deleted by the admin.\n\nReason: {reason}\n\nRegards,\nAdmin Team",
-                    from_email=settings.DEFAULT_FROM_EMAIL,
-                    recipient_list=[email],
-                    fail_silently=True,
-                )
+            if reason:
+                if email:
+                    try:
+                        send_mail(
+                            subject=f"Your club '{club.club_name}' registration was deleted",
+                            message=f"Dear Club,\n\nYour club registration has been deleted by the admin.\n\nReason: {reason}\n\nRegards,\nAdmin Team",
+                            from_email=settings.DEFAULT_FROM_EMAIL,
+                            recipient_list=[email],
+                            fail_silently=True,
+                        )
+                    except Exception:
+                        messages.warning(request, "Failed to send deletion email.")
 
-            club.delete()
-            messages.warning(request, f"{club.club_name} has been deleted.")
-            return redirect("admin_panel:admin_profile_view")
+                club.delete()
+                messages.warning(request, f"{club.club_name} has been deleted.")
+                return redirect("admin_panel:admin_profile_view")
+            else:
+                messages.error(request, "Please provide a reason for deletion.")
 
     return render(request, "admin_panel/detail.html", {
         "club": club,
-        "show_delete_form": show_delete_form
+        "show_delete_form": show_delete_form,
     })
 
 

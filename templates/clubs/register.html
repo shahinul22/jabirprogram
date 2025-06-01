@@ -6,7 +6,23 @@
   {% csrf_token %}
   {% load form_tags %}
   {{ form.non_field_errors }}
+  
 
+  {% if form.errors %}
+  <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4">
+    <h3 class="font-bold">Form Errors:</h3>
+    <ul>
+      {% for field, errors in form.errors.items %}
+        <li><strong>{{ field }}</strong>: {{ errors|join:", " }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+{% endif %}
+{% if form.errors %}
+    <div class="bg-red-100 p-4 mb-4">
+        <strong>Errors:</strong> {{ form.errors }}
+    </div>
+{% endif %}
   <h2 class="text-3xl font-bold mb-6 text-center text-blue-700">
     📝 Club Registration Form
   </h2>
@@ -32,7 +48,8 @@
       {% include "shared/field.html" with field=form.president_student_id label="Student ID" %}
       {% include "shared/field.html" with field=form.president_email label="Email" %}
       {% include "shared/field.html" with field=form.president_phone label="Phone" %}
-      {% include "shared/field.html" with field=form.president_department_year label="Department & Year" %}
+      {% include "shared/field.html" with field=form.president_department label="Department" %}
+      {% include "shared/field.html" with field=form.president_session label="Session" %}
     </div>
   </div>
   <hr class="border-t-2 border-green-200">
@@ -45,21 +62,22 @@
       {% include "shared/field.html" with field=form.secretary_student_id label="Student ID" %}
       {% include "shared/field.html" with field=form.secretary_email label="Email" %}
       {% include "shared/field.html" with field=form.secretary_phone label="Phone" %}
-      {% include "shared/field.html" with field=form.secretary_department_year label="Department & Year" %}
+      {% include "shared/field.html" with field=form.secretary_department label="Department" %}
+      {% include "shared/field.html" with field=form.secretary_session label="Session" %}
     </div>
   </div>
   <hr class="border-t-2 border-purple-200">
 
-  <!-- Treasurer -->
+  <!-- Organizing Secretary -->
   <div>
-    <h3 class="text-xl font-bold text-yellow-600 mb-4">💰 Treasurer & Executives <span class="text-gray-400 text-sm">(optional)</span></h3>
+    <h3 class="text-xl font-bold text-yellow-600 mb-4"> Organizing Secretary </h3>
     <div class="grid md:grid-cols-2 gap-4">
-      {% include "shared/field.html" with field=form.treasurer_name label="Treasurer Name" %}
-      {% include "shared/field.html" with field=form.treasurer_student_id label="Student ID" %}
-      {% include "shared/field.html" with field=form.treasurer_email label="Email" %}
-      {% include "shared/field.html" with field=form.treasurer_phone label="Phone" %}
-      {% include "shared/field.html" with field=form.treasurer_department_year label="Department & Year" %}
-      {% include "shared/field.html" with field=form.other_executive_members label="Other Executive Members" %}
+      {% include "shared/field.html" with field=form.organizing_secretary_name label="Treasurer Name" %}
+      {% include "shared/field.html" with field=form.organizing_secretary_student_id label="Student ID" %}
+      {% include "shared/field.html" with field=form.organizing_secretary_email label="Email" %}
+      {% include "shared/field.html" with field=form.organizing_secretary_phone label="Phone" %}
+      {% include "shared/field.html" with field=form.organizing_secretary_department label="Department & Year" %}
+      {% include "shared/field.html" with field=form.organizing_secretary_session label="Other Executive Members" %}
     </div>
   </div>
   <hr class="border-t-2 border-yellow-200">
@@ -79,6 +97,8 @@
     <div class="grid md:grid-cols-2 gap-4">
       {% include "shared/field.html" with field=form.advisor_name label="Advisor Name" %}
       {% include "shared/field.html" with field=form.advisor_contact label="Advisor Contact" %}
+      {% include "shared/field.html" with field=form.advisor_email label="Advisor " %}
+      {% include "shared/field.html" with field=form.advisor_department label="Advisor Contact" %}
     </div>
   </div>
   <hr class="border-t-2 border-pink-200">

@@ -58,6 +58,8 @@ def club_profile_tab_view(request, tab):
     }
     
     return render(request, 'clubs/profile.html', context)
+
+    
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -129,23 +131,32 @@ from django.contrib import messages
 from django.contrib.auth.hashers import make_password
 from .forms import ClubRegistrationForm
 
+from django.contrib import messages
+from django.contrib.auth.hashers import make_password
+from django.shortcuts import render, redirect
+from .forms import ClubRegistrationForm
+
 def club_register(request):
     if request.method == "POST":
         form = ClubRegistrationForm(request.POST)
         if form.is_valid():
-            club = form.save(commit=False)
-            raw_password = form.cleaned_data["club_password"]
-            club.club_password = make_password(raw_password)  # hash the password
-            club.save()
-            messages.success(request, "Registration successful! Please wait for admin approval.")
-            return redirect("clubs:club_login")
+            try:
+                club = form.save(commit=False)
+                raw_password = form.cleaned_data["club_password"]
+                club.club_password = make_password(raw_password)
+                club.save()
+                messages.success(request, "✅ Registration successful! Await admin approval.")
+                return redirect("clubs:club_login")
+            except Exception as e:
+                messages.error(request, f"Error saving form: {e}")
         else:
-            messages.error(request, "Please correct the errors below.")
+            # Log form errors for debugging
+            print("Form errors:", form.errors)
+            messages.error(request, "❌ Please fix the errors below.")
     else:
         form = ClubRegistrationForm()
 
     return render(request, "clubs/register.html", {"form": form})
-
 
 
 from django.contrib.auth import login
@@ -226,6 +237,46 @@ def club_members_view(request):
     }
     return render(request, 'clubs/members.html', context)
 
+from .forms import ClubMemberForm
+
+
+from django.contrib import messages
+from django.shortcuts import get_object_or_404, redirect, render
+
+from django.contrib import messages
+from django.shortcuts import get_object_or_404, redirect, render
+
+def add_member(request, club_id):
+    club = get_object_or_404(Club, id=club_id)
+    
+    if request.method == 'POST':
+        form = ClubMemberForm(request.POST, request.FILES)
+        if form.is_valid():
+            student_id = form.cleaned_data['student_id']
+            
+            # Check if student_id already exists in this club
+            if club.members.filter(student_id=student_id).exists():
+                messages.error(request, "A member with this student ID already exists in the club.")
+            else:
+                member = form.save(commit=False)
+                member.club = club
+                member.save()
+                
+                messages.success(request, "New member added successfully!")
+                return redirect('clubs:club_profile_members')
+
+    else:
+        form = ClubMemberForm()
+
+    return render(request, 'clubs/add_member.html', {
+        'form': form,
+        'club': club,
+    })
+
+def club_detail(request, club_id):
+    club = get_object_or_404(Club, id=club_id)
+    # Render the detail template or redirect as needed
+    return render(request, 'clubs/club_detail.html', {'club': club})
 
 
 from django.contrib.auth import logout
@@ -237,3 +288,5 @@ from django.shortcuts import redirect
 def club_logout(request):
     logout(request)
     return redirect("clubs:club_login")  # Or wherever you want to redirect after logout
+
+
