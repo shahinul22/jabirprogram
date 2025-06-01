@@ -70,8 +70,24 @@ from django.conf import settings
 from django.db import IntegrityError
 from django.utils import timezone
 # from .models import ClubRegistration
+from django.views.decorators.csrf import csrf_protect
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib import messages
+from django.db import IntegrityError
+from django.core.mail import send_mail
+from django.conf import settings
+from django.contrib.auth.models import User
 
-@csrf_protect  # Keep CSRF protection
+from django.shortcuts import render, redirect, get_object_or_404
+from django.views.decorators.csrf import csrf_protect
+from django.contrib import messages
+from django.db import IntegrityError
+from django.core.mail import send_mail
+from django.conf import settings
+from clubs.models import ClubRegistration, Club
+
+
+@csrf_protect
 def club_detail(request, pk):
     club = get_object_or_404(ClubRegistration, pk=pk)
     show_delete_form = False
@@ -82,6 +98,10 @@ def club_detail(request, pk):
         if action == "approve":
             if club.is_approved:
                 messages.warning(request, f"Club '{club.club_name}' has already been approved.")
+                return redirect(request.path)
+
+            if Club.objects.filter(name=club.club_name).exists():
+                messages.error(request, f"Approval failed: Club '{club.club_name}' already exists!")
                 return redirect(request.path)
 
             try:
@@ -128,6 +148,10 @@ JU Club Management Team
                         )
                     except Exception:
                         messages.warning(request, "Failed to send deletion email.")
+
+                # Delete approved club if exists
+                if club.approved_club:
+                    club.approved_club.delete()
 
                 club.delete()
                 messages.warning(request, f"{club.club_name} has been deleted.")

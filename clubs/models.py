@@ -89,7 +89,7 @@ class ClubMember(models.Model):
     club = models.ForeignKey(Club, on_delete=models.CASCADE, related_name='members')
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     name = models.CharField(max_length=255)
-    student_id = models.CharField(max_length=50, unique=True)
+    student_id = models.CharField(max_length=50)
     email = models.EmailField()
     phone = models.CharField(max_length=20)
     session = models.CharField(max_length=20, blank=True, null=True)
@@ -150,6 +150,11 @@ from django.utils import timezone
 from django.db import IntegrityError
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.hashers import is_password_usable
+from django.db import models, IntegrityError
+from django.contrib.auth.hashers import make_password
+from django.utils import timezone
+
+
 
 class ClubRegistration(models.Model):
     # Auth Info
@@ -226,9 +231,6 @@ class ClubRegistration(models.Model):
 
     def approve(self):
         from .models import Club, ClubMember, ClubAdvisor, ClubSocialLink
-
-        if Club.objects.filter(name=self.club_name).exists():
-            raise IntegrityError(f"Club '{self.club_name}' already exists!")
 
         club = Club.objects.create(
             name=self.club_name,
