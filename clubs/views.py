@@ -35,10 +35,10 @@ def club_profile_view(request):
 
     return redirect('clubs:club_register')
 
+from events.models import Event
+from django.utils import timezone
 
-# clubs/views.py
 def club_profile_tab_view(request, tab):
-    # Get the club registration for the current user
     try:
         club_reg = ClubRegistration.objects.get(club_username=request.user.username)
     except ClubRegistration.DoesNotExist:
@@ -50,16 +50,28 @@ def club_profile_tab_view(request, tab):
         return redirect('clubs:club_profile')
     
     club = club_reg.approved_club
+    
+    # Get upcoming events for this club
+    upcoming_events = Event.objects.filter(
+        club=club,
+        date_time__gte=timezone.now()
+    ).order_by('date_time')[:2]  # Limit to 2 upcoming events
+    # CORRECTED: Use 'tab' parameter instead of undefined 'active_tab'
+    if tab == 'events':
+        events = Event.objects.filter(club=club).order_by('date_time')
+    else:
+        events = Event.objects.none()
+    
     context = {
         'club': club,
-        'active_tab': tab,
+        'active_tab': tab,  # Pass the tab to template as 'active_tab'
         'status': 'approved',
-        'club_registration': club_reg
+        'club_registration': club_reg,
+        'events': events,
+        'upcoming_events': upcoming_events,  # Pass to template
     }
     
     return render(request, 'clubs/profile.html', context)
-
-    
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required

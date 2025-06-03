@@ -12,6 +12,7 @@ urlpatterns = [
     path('admin-panel/', include('admin_panel.urls', namespace='admin_panel')),
     path('clubs/', include('clubs.urls', namespace='clubs')),
     path('user/', include('user.urls', namespace='user')),
+    path('events/', include('events.urls', namespace='events')),
  
 ]
 

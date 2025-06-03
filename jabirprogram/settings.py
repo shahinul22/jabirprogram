@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     'clubs',
     'admin_panel',
     'core',
+    'events',
     'widget_tweaks',
 
     

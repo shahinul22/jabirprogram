@@ -301,3 +301,6 @@ class ClubRegistration(models.Model):
         self.approved_club = club
         self.reviewed_at = timezone.now()
         self.save()
+
+
+#  for event 
